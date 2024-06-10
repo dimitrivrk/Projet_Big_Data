@@ -13,13 +13,21 @@ for (i in 1:ncol(data)) {
 summary(data)
 
 # Affichage des premières lignes du jeu de données
-head(data)
+#head(data)
+
+
+
+for (i in 1:ncol(data)) {
+  if (is.character(data[,i])) {
+    data[,i] <- tolower(data[,i])
+  }
+}
 
 # Conversion des types de données
 data$X <- as.factor(data$X)
 data$Y <- as.factor(data$Y)
 data$OBJECTID <- as.factor(data$OBJECTID)
-data$created_date <- as.Date(data$created_date, format = "%Y-%m-%d")
+data$created_date <- as.Date(data$created_date, format = "%Y/%m/%d %H:%M:%S%z")
 data$created_user <- as.factor(data$created_user)
 data$src_geo <- as.factor(data$src_geo)
 data$clc_quartier <- as.factor(data$clc_quartier)
@@ -33,30 +41,29 @@ data$fk_stadedev <- as.factor(data$fk_stadedev)
 data$fk_port <- as.factor(data$fk_port)
 data$fk_pied <- as.factor(data$fk_pied)
 data$fk_situation <- as.factor(data$fk_situation)
-data$fk_revetement <- as.factor(data$fk_revetement)
+# data$fk_revetement <- as.factor(data$fk_revetement)
 data$commentaire_environnement <- as.factor(data$commentaire_environnement)
 data$dte_plantation <- as.Date(data$dte_plantation, format = "%Y/%m/%d %H:%M:%S%z")
 data$age_estim <- as.numeric(data$age_estim)
 data$fk_prec_estim <- as.factor(data$fk_prec_estim)
 data$clc_nbr_diag <- as.factor(data$clc_nbr_diag)
-data$dte_abattage <- as.Date(data$dte_abattage, format = "%Y-%m-%d")
+data$dte_abattage <- as.Date(data$dte_abattage, format = "%Y/%m/%d %H:%M:%S%z")
 data$fk_nomtech <- as.factor(data$fk_nomtech)
 data$last_edited_user <- as.factor(data$last_edited_user)
-data$last_edited_date <- as.Date(data$last_edited_date, format = "%Y-%m-%d")
+data$last_edited_date <- as.Date(data$last_edited_date, format = "%Y/%m/%d %H:%M:%S%z")
 data$villeca <- as.factor(data$villeca)
 data$nomfrancais <- as.factor(data$nomfrancais)
 data$nomlatin <- as.factor(data$nomlatin)
 data$GlobalID <- as.factor(data$GlobalID)
-data$CreationDate <- as.Date(data$CreationDate, format = "%Y-%m-%d")
+data$CreationDate <- as.Date(data$CreationDate, format = "%Y/%m/%d %H:%M:%S%z")
 data$Creator <- as.factor(data$Creator)
-data$EditDate <- as.Date(data$EditDate, format = "%Y-%m-%d")
+data$EditDate <- as.Date(data$EditDate, format = "%Y/%m/%d %H:%M:%S%z")
 data$Editor <- as.factor(data$Editor)
 data$feuillage <- as.factor(data$feuillage)
 data$remarquable <- as.factor(data$remarquable)
 
 # Nettoyage des données
 # Valeurs manquantes, valeurs aberrantes et Doublons
-
 
 
 
@@ -73,14 +80,49 @@ for (i in 1:ncol(data)) {
 #supprimer les colonnes vides
 data <- data[, colSums(is.na(data)) != nrow(data)]
 
-# Suppression des valeurs aberrantes
-# Code pour détecter et supprimer les valeurs aberrantes
+# Détection des valeurs aberrantes
+# Suppression des valeurs aberrantes pour toutes les colonnes
+# for (i in 1:ncol(data)) {
+#     outliers <- boxplot.stats(data[, i])$out
+#     data <- data[!data[, i] %in% outliers, ]
+# }
+
+
+#To lower pour toute les colonnes
+
+
+
 
 
 
 # Affichage des premières lignes du jeu de données après nettoyage
 head(data)
 
+
+# Histogramme de la hauteur totale
+#hist(data$haut_tot, main = "Histogramme de la hauteur totale", xlab = "Hauteur totale", ylab = "Fréquence", col = "lightblue", border = "black")
+
+# Fréquence des variables catégorielles
+#cat_vars <- c("X", "Y", "OBJECTID", "created_user", "src_geo", "clc_quartier", "clc_secteur", "id_arbre", "fk_arb_etat", "fk_stadedev", "fk_port", "fk_pied", "fk_situation", "commentaire_environnement", "fk_prec_estim", "clc_nbr_diag", "fk_nomtech", "last_edited_user", "villeca", "nomfrancais", "nomlatin", "GlobalID", "Creator", "Editor", "feuillage", "remarquable")
+
+
+
+#Boxplot du diamètre du tronc
+#boxplot(data$tronc_diam, main = "Boxplot du diamètre du tronc", xlab = "Diamètre du tronc", col = "lightblue", border = "black")
+
+# Boxplot de la hauteur totale par quartier
+#boxplot(data$haut_tot ~ data$clc_quartier, main = "Boxplot de la hauteur totale par quartier", xlab = "Quartier", ylab = "Hauteur totale", col = "lightblue", border = "black")
+
+# Distribution des arbres par quartier
+#barplot(table(data$clc_quartier), main = "Distribution des arbres par quartier", xlab = "Quartier", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
+
+#Répartition des types de feuillage
+#barplot(table(data$feuillage), main = "Répartition des types de feuillage", xlab = "Type de feuillage", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
+
+
+# Créer des représentations graphiques
+#Exemple: répartition des arbres suivant leur stade de développement
+barplot(table(data$fk_stadedev), main = "Répartition des arbres suivant leur stade de développement", xlab = "Stade de développement", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
 
 
 
