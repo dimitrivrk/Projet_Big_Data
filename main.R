@@ -1,10 +1,16 @@
-data <- read.csv("Patrimoine_Arbore.csv", header = TRUE, sep = ",", dec = ".", quote = "\"", fill = TRUE, comment.char = "", stringsAsFactors = FALSE)
+data <- read.csv("Patrimoine_Arbore_SOURCE.csv", 
+    header = TRUE,
+    sep = ",",
+    encoding="latin1")
+
+    
 data <- data.frame(data)
 
+data[data == ""] <- NA
 
 # pour chaque colonne modifier l'encodage  passe les en UTF8 car il ne le sont pas de base
 for (i in 1:ncol(data)) {
-    data[,i] <- iconv(data[,i], to = "UTF-8")
+    data[,i] <- iconv(data[,i], from="latin1",to = "UTF-8")
 }
 
 # Description du jeu de données
@@ -13,17 +19,22 @@ for (i in 1:ncol(data)) {
 #head(data)
 
 
+print(data[11229,])
+
+
+
+
 
 # Conversion des types de données
 data$X <- as.numeric(data$X)
 data$Y <- as.numeric(data$Y)
 data$OBJECTID <- as.numeric(data$OBJECTID)
-data$created_date <- as.POSIXct(data$created_date, format = "%Y/%m/%d %H:%M:%S", tz = "UTC")
+data$created_date <- as.POSIXct(data$created_date, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 data$created_user <- as.factor(data$created_user)
 data$src_geo <- as.factor(data$src_geo)
 data$clc_quartier <- as.factor(data$clc_quartier)
 data$clc_secteur <- as.factor(data$clc_secteur)
-data$id_arbre <- as.numeric(data$id_arbre)
+data$id_arbre <- as.factor(data$id_arbre)
 data$haut_tot <- as.numeric(data$haut_tot)
 data$haut_tronc <- as.numeric(data$haut_tronc)
 data$tronc_diam <- as.numeric(data$tronc_diam)
@@ -36,21 +47,21 @@ data$fk_situation <- as.factor(data$fk_situation)
 data$fk_revetement <- data$fk_revetement == "Oui"
 
 data$commentaire_environnement <- as.character(data$commentaire_environnement)
-data$dte_plantation <- as.POSIXct(data$dte_plantation, format = "%Y/%m/%d %H:%M:%S",tz = "UTC")
+data$dte_plantation <- as.POSIXct(data$dte_plantation, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 data$age_estim <- as.numeric(data$age_estim)
 data$fk_prec_estim <- as.numeric(data$fk_prec_estim)
 data$clc_nbr_diag <- as.numeric(data$clc_nbr_diag)
-data$dte_abattage <- as.POSIXct(data$dte_abattage, format = "%Y/%m/%d %H:%M:%S",tz = "UTC")
+data$dte_abattage <- as.POSIXct(data$dte_abattage, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 data$fk_nomtech <- as.character(data$fk_nomtech)
 data$last_edited_user <- as.factor(data$last_edited_user)
-data$last_edited_date <- as.POSIXct(data$last_edited_date, format = "%Y/%m/%d %H:%M:%S",tz = "UTC")
+data$last_edited_date <- as.POSIXct(data$last_edited_date, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 data$villeca <- as.factor(data$villeca)
 data$nomfrancais <- as.character(data$nomfrancais)
 data$nomlatin <- as.character(data$nomlatin)
 data$GlobalID <- as.character(data$GlobalID)
-data$CreationDate <- as.POSIXct(data$CreationDate, format = "%Y/%m/%d %H:%M:%S",tz = "UTC")
+data$CreationDate <- as.POSIXct(data$CreationDate, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 data$Creator <- as.factor(data$Creator)
-data$EditDate <- as.POSIXct(data$EditDate, format = "%Y/%m/%d %H:%M:%S",tz = "UTC")
+data$EditDate <- as.POSIXct(data$EditDate, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 data$Editor <- as.factor(data$Editor)
 data$feuillage <- as.factor(data$feuillage)
 
@@ -74,13 +85,38 @@ data <- data[!is.na(data$X) | !is.na(data$Y),]
 
 
 #* Suppression des doublons
-#? OK! Enfin je pense
+#? OK! Enfin je pense 
+#! A tester 
 data <- unique(data)
 
-
 #* Completer les lignes avec des valeurs manquantes
+#* created_date
+#* Si pas de date on prend celle du dessus
+#? OK!
+for (i in 1:nrow(data)) {
+    if(is.na(data[i, "created_date"])){
+        data[i, "created_date"] <- data[i-1, "created_date"]
+    }
+}
+# Définir l'opérateur infixe `//`
+`%//%` <- function(a, b) trunc(a / b)
 
-summary(data$created_date)
+
+#* les ligne qui possède plus de 50% valeurs manquantes sont supprimées
+#? OK!
+nrow(data)
+data <- data[rowSums(is.na(data)) < 13,]
+nrow(data)
+
+
+
+
+
+
+
+
+
+
 
 
 # for (i in 1:ncol(data)) {
