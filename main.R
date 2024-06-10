@@ -10,7 +10,7 @@ for (i in 1:ncol(data)) {
 # Description du jeu de données
 #summary(data)
 
-head(data)
+#head(data)
 
 
 
@@ -56,31 +56,38 @@ data$feuillage <- as.factor(data$feuillage)
 
 data$remarquable <- data$remarquable == "Oui"
 
-summary(data)
 
 
-# Nettoyage des données
-# Valeurs manquantes, valeurs aberrantes et Doublons
+#* Nettoyage des données
 
-
-# met tous les caractères en miniscule
+#* Mettre en minuscule les valeurs des colonnes
+#? OK!
 for (i in 1:ncol(data)) {
-    data[,i] <- tolower(data[,i])
+    if(is.factor(data[,i]) | is.character(data[,i])){
+        data[,i] <- tolower(data[,i])
+    }
 }
 
-
-#supprimer toute les lignes avec des valeurs manquantes en X ou Y
+#* Supprimer toute les lignes avec des valeurs manquantes en X ou Y
+#? OK!
 data <- data[!is.na(data$X) | !is.na(data$Y),]
 
-# Suppression des doublons
+
+#* Suppression des doublons
+#? OK! Enfin je pense
 data <- unique(data)
 
-# completer les lignes avec des valets manquantes par la mediane des valeurs de la colonne 
-for (i in 1:ncol(data)) {
-  if (is.numeric(data[,i])) {
-    data[,i][is.na(data[,i])] <- median(data[,i], na.rm = TRUE)
-  }
-}
+
+#* Completer les lignes avec des valeurs manquantes
+
+summary(data$created_date)
+
+
+# for (i in 1:ncol(data)) {
+#   if (is.numeric(data[,i])) {
+#     data[,i][is.na(data[,i])] <- median(data[,i], na.rm = TRUE)
+#   }
+# }
 
 
 # Détection des valeurs aberrantes
