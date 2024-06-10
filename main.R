@@ -18,9 +18,8 @@ summary(data)
 
 
 for (i in 1:ncol(data)) {
-  if (is.character(data[,i])) {
     data[,i] <- tolower(data[,i])
-  }
+  
 }
 
 # Conversion des types de données
@@ -70,15 +69,13 @@ data$remarquable <- as.factor(data$remarquable)
 # Suppression des doublons
 data <- unique(data)
 
-# completer les lignes avec des valets manquantes par la mediane des valeurs de la colonne 
+# completer les lignes avec des valets manquantes par la mediane des valeurs de la colonne  # nolint
 for (i in 1:ncol(data)) {
   if (is.numeric(data[,i])) {
     data[,i][is.na(data[,i])] <- median(data[,i], na.rm = TRUE)
   }
 }
 
-#supprimer les colonnes vides
-data <- data[, colSums(is.na(data)) != nrow(data)]
 
 # Détection des valeurs aberrantes
 # Suppression des valeurs aberrantes pour toutes les colonnes
@@ -100,7 +97,7 @@ head(data)
 
 
 # Histogramme de la hauteur totale
-#hist(data$haut_tot, main = "Histogramme de la hauteur totale", xlab = "Hauteur totale", ylab = "Fréquence", col = "lightblue", border = "black")
+hist(data$haut_tot, main = "Histogramme de la hauteur totale", xlab = "Hauteur totale", ylab = "Fréquence", col = "lightblue", border = "black")
 
 # Fréquence des variables catégorielles
 #cat_vars <- c("X", "Y", "OBJECTID", "created_user", "src_geo", "clc_quartier", "clc_secteur", "id_arbre", "fk_arb_etat", "fk_stadedev", "fk_port", "fk_pied", "fk_situation", "commentaire_environnement", "fk_prec_estim", "clc_nbr_diag", "fk_nomtech", "last_edited_user", "villeca", "nomfrancais", "nomlatin", "GlobalID", "Creator", "Editor", "feuillage", "remarquable")
@@ -122,7 +119,12 @@ head(data)
 
 # Créer des représentations graphiques
 #Exemple: répartition des arbres suivant leur stade de développement
-barplot(table(data$fk_stadedev), main = "Répartition des arbres suivant leur stade de développement", xlab = "Stade de développement", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
+#barplot(table(data$fk_stadedev), main = "Répartition des arbres suivant leur stade de développement", xlab = "Stade de développement", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
+
+
+#Créer des histogrammes
+#Exemple: Quantité d’arbres en fonction du quartier/secteur, de sa situation
+#hist(data$haut_tot[data$clc_quartier == "quartier du centre-ville"], main = "Quantité d’arbres en fonction du quartier", xlab = "Hauteur totale", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
 
 
 
