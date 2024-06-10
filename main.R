@@ -16,7 +16,7 @@ summary(data)
 #head(data)
 
 
-
+# met tous les caractères en miniscule
 for (i in 1:ncol(data)) {
     data[,i] <- tolower(data[,i])
   
@@ -69,7 +69,7 @@ data$remarquable <- as.factor(data$remarquable)
 # Suppression des doublons
 data <- unique(data)
 
-# completer les lignes avec des valets manquantes par la mediane des valeurs de la colonne  # nolint
+# completer les lignes avec des valets manquantes par la mediane des valeurs de la colonne 
 for (i in 1:ncol(data)) {
   if (is.numeric(data[,i])) {
     data[,i][is.na(data[,i])] <- median(data[,i], na.rm = TRUE)
@@ -83,13 +83,6 @@ for (i in 1:ncol(data)) {
 #     outliers <- boxplot.stats(data[, i])$out
 #     data <- data[!data[, i] %in% outliers, ]
 # }
-
-
-#To lower pour toute les colonnes
-
-
-
-
 
 
 # Affichage des premières lignes du jeu de données après nettoyage
