@@ -18,7 +18,7 @@ head(data)
 data$X <- as.numeric(data$X)
 data$Y <- as.numeric(data$Y)
 data$OBJECTID <- as.numeric(data$OBJECTID)
-data$created_date <- as.Date(data$created_date, format = "%Y/%m/%d %H:%M:%S%z")
+data$created_date <- as.POSIXct(data$created_date, format = "%Y/%m/%d %H:%M:%S", tz = "UTC")
 data$created_user <- as.factor(data$created_user)
 data$src_geo <- as.factor(data$src_geo)
 data$clc_quartier <- as.factor(data$clc_quartier)
@@ -36,28 +36,29 @@ data$fk_situation <- as.factor(data$fk_situation)
 data$fk_revetement <- data$fk_revetement == "Oui"
 
 data$commentaire_environnement <- as.character(data$commentaire_environnement)
-data$dte_plantation <- as.Date(data$dte_plantation, format = "%Y/%m/%d %H:%M:%S%z")
+data$dte_plantation <- as.POSIXct(data$dte_plantation, format = "%Y/%m/%d %H:%M:%S",tz = "UTC")
 data$age_estim <- as.numeric(data$age_estim)
 data$fk_prec_estim <- as.numeric(data$fk_prec_estim)
 data$clc_nbr_diag <- as.numeric(data$clc_nbr_diag)
-data$dte_abattage <- as.Date(data$dte_abattage, format = "%Y/%m/%d %H:%M:%S%z")
+data$dte_abattage <- as.POSIXct(data$dte_abattage, format = "%Y/%m/%d %H:%M:%S",tz = "UTC")
 data$fk_nomtech <- as.character(data$fk_nomtech)
 data$last_edited_user <- as.factor(data$last_edited_user)
-data$last_edited_date <- as.Date(data$last_edited_date, format = "%Y/%m/%d %H:%M:%S%z")
+data$last_edited_date <- as.POSIXct(data$last_edited_date, format = "%Y/%m/%d %H:%M:%S",tz = "UTC")
 data$villeca <- as.factor(data$villeca)
 data$nomfrancais <- as.character(data$nomfrancais)
 data$nomlatin <- as.character(data$nomlatin)
 data$GlobalID <- as.character(data$GlobalID)
-data$CreationDate <- as.Date(data$CreationDate, format = "%Y/%m/%d %H:%M:%S%z")
+data$CreationDate <- as.POSIXct(data$CreationDate, format = "%Y/%m/%d %H:%M:%S",tz = "UTC")
 data$Creator <- as.factor(data$Creator)
-data$EditDate <- as.Date(data$EditDate, format = "%Y/%m/%d %H:%M:%S%z")
+data$EditDate <- as.POSIXct(data$EditDate, format = "%Y/%m/%d %H:%M:%S",tz = "UTC")
 data$Editor <- as.factor(data$Editor)
 data$feuillage <- as.factor(data$feuillage)
 
 data$remarquable <- data$remarquable == "Oui"
 
+summary(data)
 
-summary(data$X)
+
 # Nettoyage des données
 # Valeurs manquantes, valeurs aberrantes et Doublons
 
@@ -66,10 +67,11 @@ summary(data$X)
 for (i in 1:ncol(data)) {
     data[,i] <- tolower(data[,i])
 }
+
+
 #supprimer toute les lignes avec des valeurs manquantes en X ou Y
 data <- data[!is.na(data$X) | !is.na(data$Y),]
 
-summary(data$X)
 # Suppression des doublons
 data <- unique(data)
 
