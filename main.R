@@ -103,7 +103,24 @@ sum(is.na(data$clc_quartier))
 #? OK!
 data$created_user <- gsub("\\.", " ", data$created_user)
 
-# sum(is.na(data$clc_quartier))
+print("nb quartier non catégorisé : ")
+print(sum(is.na(data$clc_quartier)))
+
+# Generate a color vector based on clc_quartier
+unique_quartiers <- unique(data$clc_quartier)
+color_vector <- rainbow(length(unique_quartiers))  # Or use any other color palette
+
+# Map clc_quartier to colors
+color_map <- setNames(color_vector, unique_quartiers)
+point_colors <- color_map[data$clc_quartier]
+
+# Plot the data
+plot(
+  data$X, data$Y,
+  col = point_colors, pch = 19, cex = 0.1,
+  main = "quartiers avant ", xlab = "X", ylab = "Y"
+)
+
 
 # TODO baisser 275 et mettre un quartier inconnu
 #* Les valeurs manquantes des quartier sont remplacées par la valeur du quartier du meme secteur si il est renseigné
@@ -117,22 +134,37 @@ for (i in 1:nrow(data)) {
             data[i, "clc_quartier"] <- quartier[1]
         }else{
             min_distance <- Inf
-            closest_quartier <- NA
             for (j in 1:nrow(data)) {
                 if(!is.na(data[j, "clc_quartier"])){
                     distance <- sqrt((data[i, "X"] - data[j, "X"])**2 + (data[i, "Y"] - data[j, "Y"])**2)
                     if(distance < min_distance && distance < 275){
                         min_distance <- distance
                         closest_quartier <- data[j, "clc_quartier"]
+                        data[i, "clc_quartier"] <- closest_quartier
                     }
                 }
             }
-            data[i, "clc_quartier"] <- closest_quartier
         }
     }
 }
 
-# sum(is.na(data$clc_quartier))
+# Generate a color vector based on clc_quartier
+unique_quartiers <- unique(data$clc_quartier)
+color_vector <- rainbow(length(unique_quartiers))  # Or use any other color palette
+
+# Map clc_quartier to colors
+color_map <- setNames(color_vector, unique_quartiers)
+point_colors <- color_map[data$clc_quartier]
+
+# Plot the data
+plot(
+  data$X, data$Y,
+  col = point_colors, pch = 19, cex = 0.1,
+  main = "quartiers après", xlab = "X", ylab = "Y"
+)
+
+print("après traitement, nb quartier non catégorisé : ")
+print(sum(is.na(data$clc_quartier)))
 
 sum(is.na(data$tronc_diam))
 
