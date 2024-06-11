@@ -18,14 +18,6 @@ for (i in 1:ncol(data)) {
 # Description du jeu de données
 #summary(data)
 
-#head(data)
-
-
-
-
-
-
-
 
 # Conversion des types de données
 data$X <- as.numeric(data$X)
@@ -45,14 +37,7 @@ data$fk_stadedev <- as.factor(data$fk_stadedev)
 data$fk_port <- as.factor(data$fk_port)
 data$fk_pied <- as.factor(data$fk_pied)
 data$fk_situation <- as.factor(data$fk_situation)
-
-
-
-data$remarquable <- ifelse(data$remarquable == "Oui", TRUE, FALSE)
 data$fk_revetement <- ifelse(data$fk_revetement == "Oui", TRUE, FALSE)
-
-
-
 data$commentaire_environnement <- as.character(data$commentaire_environnement)
 data$dte_plantation <- as.Date(data$dte_plantation)
 data$age_estim <- as.numeric(data$age_estim)
@@ -71,7 +56,7 @@ data$Creator <- as.factor(data$Creator)
 data$EditDate <- as.Date(data$EditDate)
 data$Editor <- as.factor(data$Editor)
 data$feuillage <- as.factor(data$feuillage)
-
+data$remarquable <- ifelse(data$remarquable == "Oui", TRUE, FALSE)
 
 
 #* Nettoyage des données
@@ -87,7 +72,6 @@ for (i in 1:ncol(data)) {
 }
 
 
-
 #* Supprimer toute les lignes avec des valeurs manquantes en X ou Y
 #? OK!
 data <- data[!is.na(data$X) | !is.na(data$Y),]
@@ -97,7 +81,6 @@ data <- data[!is.na(data$X) | !is.na(data$Y),]
 #? OK! Enfin je pense 
 #! A tester 
 data <- unique(data)
-
 
 
 #* Completer les lignes avec des valeurs manquantes
@@ -116,7 +99,7 @@ for (i in 1:nrow(data)) {
 #? OK!
 nrow(data)
 data <- data[rowSums(is.na(data)) < 13,]
-nrow(data)
+
 
 #* formatage des noms
 #* remplace les . de la colone created_user pas des espaces
@@ -128,11 +111,6 @@ data$Creator <- gsub("\\.", " ", data$Creator)
 data$Editor <- gsub("\\.", " ", data$Editor)
 
 
-
-
-
-
-sum(is.na(data$clc_quartier))
 #* Les valeurs manquantes des quartier sont remplacées par la valeur du quartier du meme secteur si il est renseigné
 #* il est remplacé par la valeur du quartier de l'arbre le plus proche qui possède un quartier renseigné avec x=data[i, "X"] et y=data[i, "Y"]
 #* on a fixé une distance limite de 275 qui n'est pas utilisé dans notre cas
@@ -160,8 +138,6 @@ for (i in 1:nrow(data)) {
         }
     }
 }
-sum(is.na(data$clc_quartier))
-cat("ICI")
 
 
 #* les valeurs manquante de tronc_diam sont remplacé par la moyenne des tronc_diam de la meme espece et au même stade de développement
@@ -208,17 +184,12 @@ for (i in seq_len(nrow(data))) {
 }
 
 
-
-
 #* remplace les NA de commentaire_environnement par "RAS"
 #? OK!
 data$commentaire_environnement[is.na(data$commentaire_environnement)] <- "RAS"
 
 #* remplacer les NA de age_estim a l'aide d'une regression lineaire entre les age_estim connus et leur tronc_diam connus de la meme espece qui determine la valeur de age_estim pour un tronc_diam donné
 #? OK!
-sum(is.na(data$age_estim))  
-
-
 for (i in seq_len(nrow(data))) {
   if (is.na(data[i, "age_estim"])) {
     espece <- data[i, "nomfrancais"]
@@ -234,11 +205,6 @@ for (i in seq_len(nrow(data))) {
 # remplacer tout les NA de clc_nbr_diag sont remplacé par 0
 #? OK!
 data$clc_nbr_diag[is.na(data$clc_nbr_diag)] <- 0
-
-
-sum(is.na(data$age_estim))  
-
-nrow(data)
 
 
 # #* les valeurs de remaquable sont remplacé a l'aide d'une regression linaire qui prend en compte les valeurs de tronc_diam et de haut_tot fk_stadedev et fk_arb_etat
@@ -323,7 +289,3 @@ barplot(table(data$fk_stadedev), main = "Répartition des arbres suivant leur st
 #Créer des histogrammes
 #Exemple: Quantité d’arbres en fonction du quartier/secteur, de sa situation
 #hist(data$haut_tot[data$clc_quartier == "quartier du centre-ville"], main = "Quantité d’arbres en fonction du quartier", xlab = "Hauteur totale", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
-
-
-
-
