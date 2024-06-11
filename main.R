@@ -233,39 +233,35 @@ data$clc_nbr_diag[is.na(data$clc_nbr_diag)] <- 0
 
 
 
-
-
-# for (i in 1:ncol(data)) {
-#   if (is.numeric(data[,i])) {
-#     data[,i][is.na(data[,i])] <- median(data[,i], na.rm = TRUE)
-#   }
-# }
-
-
-# Détection des valeurs aberrantes
-# Suppression des valeurs aberrantes pour toutes les colonnes
-# for (i in 1:ncol(data)) {
-#     outliers <- boxplot.stats(data[, i])$out
-#     data <- data[!data[, i] %in% outliers, ]
-# }
-
-
-# Affichage des premières lignes du jeu de données après nettoyage
-#head(data)
-
-
-
 #Créer des représentations graphiques
+
+cat("nombre NA Stadedev", sum(is.na(data$fk_stadedev)), "\n")
 #Exemple: répartition des arbres suivant leur stade de développement
-barplot(table(data$fk_stadedev), main = "Répartition des arbres suivant leur stade de développement", xlab = "Stade de développement", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
+#barplot(table(data$fk_stadedev), main = "Répartition des arbres suivant leur stade de développement", xlab = "Stade de développement", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
 
 
-# Histogramme de la hauteur totale
-#hist(data$haut_tot, main = "Histogramme de la hauteur totale", xlab = "Hauteur totale", ylab = "Fréquence", col = "lightblue", border = "black")
+#Créer des histogrammes
+# Créer des histogrammes
+# Exemple: Quantité d’arbres pour chaque quartier
+#liste des quartiers
+# Create a single plot for the quantity of trees in each quartier
+# Create a color dictionary for each quartier
+# Create a color dictionary for each quartier
+color_dict <- c()
+unique_quartiers <- unique(data$clc_quartier)
+for (quartier in unique_quartiers) {
+    color <- sample(colors(), 1)
+    color_dict[quartier] <- color
+}
+
+# Set the color for each quartier in the histogram
+par(mfrow = c(1, 1))
+hist(, breaks = 10, col = color_dict[data$clc_quartier], border = "black", main = "Quantité d’arbres pour chaque quartier", xlab = "Hauteur totale", ylab = "Nombre d'arbres")
+legend("topright", legend = unique(data$clc_quartier), fill = unique(color_dict[data$clc_quartier]), border = "black", bty = "n")
 
 # Fréquence des variables catégorielles
 #cat_vars <- c("X", "Y", "OBJECTID", "created_user", "src_geo", "clc_quartier", "clc_secteur", "id_arbre", "fk_arb_etat", "fk_stadedev", "fk_port", "fk_pied", "fk_situation", "commentaire_environnement", "fk_prec_estim", "clc_nbr_diag", "fk_nomtech", "last_edited_user", "villeca", "nomfrancais", "nomlatin", "GlobalID", "Creator", "Editor", "feuillage", "remarquable")
-
+#en x je veux les quartier et en y le nombre de d'arbre dans chaque quartier
 
 
 #Boxplot du diamètre du tronc
