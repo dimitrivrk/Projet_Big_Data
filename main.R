@@ -35,7 +35,7 @@ data$fk_stadedev <- as.factor(data$fk_stadedev)
 data$fk_port <- as.factor(data$fk_port)
 data$fk_pied <- as.factor(data$fk_pied)
 data$fk_situation <- as.factor(data$fk_situation)
-data$fk_revetement <- data$fk_revetement == "Oui"
+data$fk_revetement <- ifelse(is.na(data$fk_revetement), FALSE, data$fk_revetement == "Oui")
 data$commentaire_environnement <- as.character(data$commentaire_environnement)
 data$dte_plantation <- as.POSIXct(data$dte_plantation, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 data$age_estim <- as.numeric(data$age_estim)
@@ -54,8 +54,9 @@ data$Creator <- as.factor(data$Creator)
 data$EditDate <- as.POSIXct(data$EditDate, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 data$Editor <- as.factor(data$Editor)
 data$feuillage <- as.factor(data$feuillage)
-data$remarquable <- data$remarquable == "Oui"
+data$remarquable <- ifelse(is.na(data$remarquable), FALSE, data$remarquable == "Oui")
 
+View(data)
 
 #* Nettoyage des données
 
