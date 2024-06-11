@@ -103,28 +103,12 @@ sum(is.na(data$clc_quartier))
 #? OK!
 data$created_user <- gsub("\\.", " ", data$created_user)
 
-print("nb quartier non catégorisé : ")
-print(sum(is.na(data$clc_quartier)))
 
-# Generate a color vector based on clc_quartier
-unique_quartiers <- unique(data$clc_quartier)
-color_vector <- rainbow(length(unique_quartiers))  # Or use any other color palette
-
-# Map clc_quartier to colors
-color_map <- setNames(color_vector, unique_quartiers)
-point_colors <- color_map[data$clc_quartier]
-
-# Plot the data
-plot(
-  data$X, data$Y,
-  col = point_colors, pch = 19, cex = 0.1,
-  main = "quartiers avant ", xlab = "X", ylab = "Y"
-)
-
-
-# TODO baisser 275 et mettre un quartier inconnu
 #* Les valeurs manquantes des quartier sont remplacées par la valeur du quartier du meme secteur si il est renseigné
-#* il est remplacé par la valeur du quartier de l'arbre le plus proche qui possède un quartier renseigné avec x=data[i, "X"] et y=data[i, "Y"] s'il est inferieur a 1km
+#* il est remplacé par la valeur du quartier de l'arbre le plus proche qui possède un quartier renseigné avec x=data[i, "X"] et y=data[i, "Y"]
+#* on a fixé une distance limite de 275 qui n'est pas utilisé dans notre cas
+#* mais qui empecherait qu'un arbre vraiment loin soit ajouté à un quartier, il resterait alors non catégorisé
+
 #? OK!
 for (i in 1:nrow(data)) {
     if(is.na(data[i, "clc_quartier"])){
@@ -147,24 +131,6 @@ for (i in 1:nrow(data)) {
         }
     }
 }
-
-# Generate a color vector based on clc_quartier
-unique_quartiers <- unique(data$clc_quartier)
-color_vector <- rainbow(length(unique_quartiers))  # Or use any other color palette
-
-# Map clc_quartier to colors
-color_map <- setNames(color_vector, unique_quartiers)
-point_colors <- color_map[data$clc_quartier]
-
-# Plot the data
-plot(
-  data$X, data$Y,
-  col = point_colors, pch = 19, cex = 0.1,
-  main = "quartiers après", xlab = "X", ylab = "Y"
-)
-
-print("après traitement, nb quartier non catégorisé : ")
-print(sum(is.na(data$clc_quartier)))
 
 sum(is.na(data$tronc_diam))
 
