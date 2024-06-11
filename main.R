@@ -16,14 +16,6 @@ for (i in 1:ncol(data)) {
 # Description du jeu de données
 #summary(data)
 
-#head(data)
-
-
-print(data[11229,])
-
-
-
-
 
 # Conversion des types de données
 data$X <- as.numeric(data$X)
@@ -43,9 +35,7 @@ data$fk_stadedev <- as.factor(data$fk_stadedev)
 data$fk_port <- as.factor(data$fk_port)
 data$fk_pied <- as.factor(data$fk_pied)
 data$fk_situation <- as.factor(data$fk_situation)
-
 data$fk_revetement <- data$fk_revetement == "Oui"
-
 data$commentaire_environnement <- as.character(data$commentaire_environnement)
 data$dte_plantation <- as.POSIXct(data$dte_plantation, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 data$age_estim <- as.numeric(data$age_estim)
@@ -64,9 +54,7 @@ data$Creator <- as.factor(data$Creator)
 data$EditDate <- as.POSIXct(data$EditDate, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 data$Editor <- as.factor(data$Editor)
 data$feuillage <- as.factor(data$feuillage)
-
 data$remarquable <- data$remarquable == "Oui"
-
 
 
 #* Nettoyage des données
@@ -79,16 +67,17 @@ for (i in 1:ncol(data)) {
     }
 }
 
+
 #* Supprimer toute les lignes avec des valeurs manquantes en X ou Y
 #? OK!
 data <- data[!is.na(data$X) | !is.na(data$Y),]
-
 
 
 #* Suppression des doublons
 #? OK! Enfin je pense 
 #! A tester 
 data <- unique(data)
+
 
 #* Completer les lignes avec des valeurs manquantes
 #* created_date
@@ -100,24 +89,23 @@ for (i in 1:nrow(data)) {
     }
 }
 
-#* les ligne qui possède plus de 50% valeurs manquantes sont supprimées
-#? OK!
 
-nrow(data)
+#* les ligne qui possède plus de 13 valeurs manquantes sont supprimées.
+#* Pourquoi 13 ? cf le rapport
+#? OK!
 data <- data[rowSums(is.na(data)) < 13,]
-nrow(data)
 sum(is.na(data$clc_quartier))
 
 
 #* formatage des nom 
 #* remplace les . de la colone created_user pas des espaces
+#* rq : ils sont déjà en miniscules
 #? OK!
 data$created_user <- gsub("\\.", " ", data$created_user)
 
-
-
-
 # sum(is.na(data$clc_quartier))
+
+# TODO baisser 275 et mettre un quartier inconnu
 #* Les valeurs manquantes des quartier sont remplacées par la valeur du quartier du meme secteur si il est renseigné
 #* il est remplacé par la valeur du quartier de l'arbre le plus proche qui possède un quartier renseigné avec x=data[i, "X"] et y=data[i, "Y"] s'il est inferieur a 1km
 #? OK!
@@ -143,11 +131,13 @@ for (i in 1:nrow(data)) {
         }
     }
 }
+
 # sum(is.na(data$clc_quartier))
 
 sum(is.na(data$tronc_diam))
 
-#* les valeurs manquante de tronc_diam sont remplacé par la des tronc_diam de la meme espece et du meme age_estim (comprenant que les non NA et >0)
+#* les valeurs manquante de tronc_diam sont remplacé par la moyenne des tronc_diam de la meme espece et au même stade de développement
+#* Si on ne connait pas l'espèce on se base sur le diamètre des troncs qui ont ont le même age et feuillage (comprenant que les non NA et >0)
 #? OK!
 for (i in seq_len(nrow(data))) {
   if (is.na(data[i, "tronc_diam"])) {
@@ -163,7 +153,7 @@ for (i in seq_len(nrow(data))) {
       age_estim <- data[i, "age_estim"]
       feuillage <- data[i, "feuillage"]
       
-      tronc_diam <- data$tronc_diam[data$age_estim == age_estim  data$feuillage= feuillage & data$tronc_diam > 0]
+      tronc_diam <- data$tronc_diam[data$age_estim == age_estim & data$feuillage== feuillage & data$tronc_diam > 0]
         cat("2 :",mean(tronc_diam,, na.rm = TRUE),"\n")
         cat(data[i,age_estim],"\n")    
 
@@ -173,7 +163,6 @@ for (i in seq_len(nrow(data))) {
     }
   }
 }
-
 
 sum(is.na(data$tronc_diam))
 
@@ -204,15 +193,7 @@ plot(data$X, data$Y, col = "blue", pch = 19, cex = 0.1,
 dev.off()
 
 
-
-
-
-
-
-
-
-
-
+# TODO sélectionner les colonnes numériques, pas les id
 # for (i in 1:ncol(data)) {
 #   if (is.numeric(data[,i])) {
 #     data[,i][is.na(data[,i])] <- median(data[,i], na.rm = TRUE)
