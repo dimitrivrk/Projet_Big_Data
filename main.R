@@ -21,7 +21,7 @@ for (i in 1:ncol(data)) {
 data$X <- as.numeric(data$X)
 data$Y <- as.numeric(data$Y)
 data$OBJECTID <- as.numeric(data$OBJECTID)
-data$created_date <- as.POSIXct(data$created_date, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+data$created_date <- as.Date(data$created_date)
 data$created_user <- as.factor(data$created_user)
 data$src_geo <- as.factor(data$src_geo)
 data$clc_quartier <- as.factor(data$clc_quartier)
@@ -98,7 +98,7 @@ data <- data[rowSums(is.na(data)) < 13,]
 sum(is.na(data$clc_quartier))
 
 
-#* formatage des nom 
+#* formatage des noms
 #* remplace les . de la colone created_user pas des espaces
 #* rq : ils sont déjà en miniscules
 #? OK!
@@ -133,7 +133,6 @@ for (i in 1:nrow(data)) {
     }
 }
 
-sum(is.na(data$tronc_diam))
 
 #* les valeurs manquante de tronc_diam sont remplacé par la moyenne des tronc_diam de la meme espece et au même stade de développement
 #* Si on ne connait pas l'espèce on se base sur le diamètre des troncs qui ont ont le même age et feuillage (comprenant que les non NA et >0)
@@ -163,18 +162,14 @@ for (i in seq_len(nrow(data))) {
   }
 }
 
-sum(is.na(data$tronc_diam))
 
-
-sum(is.na(data$fk_stadedev))
-sum(data$fk_arb_etat != "en place")
-
+#* replit la colonne stadedev en fonction de arb_etat
 for(i in 1:nrow(data)){
     if(data[i, "fk_arb_etat"] != "en place"){
         data[i, "fk_stadedev"] <- "mort"
     }
 }
-sum(is.na(data$fk_stadedev))
+
 
 
 
