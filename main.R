@@ -71,7 +71,6 @@ data$Creator <- as.factor(data$Creator)
 data$EditDate <- as.Date(data$EditDate)
 data$Editor <- as.factor(data$Editor)
 data$feuillage <- as.factor(data$feuillage)
-data$remarquable <- as.character(data$remarquable)
 
 
 
@@ -100,6 +99,7 @@ data <- data[!is.na(data$X) | !is.na(data$Y),]
 data <- unique(data)
 
 
+
 #* Completer les lignes avec des valeurs manquantes
 #* created_date
 #* Si pas de date on prend celle du dessus
@@ -110,15 +110,16 @@ for (i in 1:nrow(data)) {
     }
 }
 
-#* les ligne qui possède plus de 50% valeurs manquantes sont supprimées
-#? OK!
 
-nrow(data)
+#* les ligne qui possède plus de 13 valeurs manquantes sont supprimées.
+#* Pourquoi 13 ? cf le rapport
+#? OK!
 data <- data[rowSums(is.na(data)) < 13,]
 nrow(data)
 
-#* formatage des nom 
+#* formatage des noms
 #* remplace les . de la colone created_user pas des espaces
+#* rq : ils sont déjà en miniscules
 #? OK!
 data$created_user <- gsub("\\.", " ", data$created_user)
 data$last_edited_user <- gsub("\\.", " ", data$last_edited_user)
@@ -132,7 +133,10 @@ data$Editor <- gsub("\\.", " ", data$Editor)
 
 sum(is.na(data$clc_quartier))
 #* Les valeurs manquantes des quartier sont remplacées par la valeur du quartier du meme secteur si il est renseigné
-#* il est remplacé par la valeur du quartier de l'arbre le plus proche qui possède un quartier renseigné avec x=data[i, "X"] et y=data[i, "Y"] s'il est inferieur a 1km
+#* il est remplacé par la valeur du quartier de l'arbre le plus proche qui possède un quartier renseigné avec x=data[i, "X"] et y=data[i, "Y"]
+#* on a fixé une distance limite de 275 qui n'est pas utilisé dans notre cas
+#* mais qui empecherait qu'un arbre vraiment loin soit ajouté à un quartier, il resterait alors non catégorisé
+
 #? OK!
 for (i in 1:nrow(data)) {
     if(is.na(data[i, "clc_quartier"])){
@@ -142,17 +146,16 @@ for (i in 1:nrow(data)) {
             data[i, "clc_quartier"] <- quartier[1]
         }else{
             min_distance <- Inf
-            closest_quartier <- NA
             for (j in 1:nrow(data)) {
                 if(!is.na(data[j, "clc_quartier"])){
                     distance <- sqrt((data[i, "X"] - data[j, "X"])**2 + (data[i, "Y"] - data[j, "Y"])**2)
                     if(distance < min_distance && distance < 275){
                         min_distance <- distance
                         closest_quartier <- data[j, "clc_quartier"]
+                        data[i, "clc_quartier"] <- closest_quartier
                     }
                 }
             }
-            data[i, "clc_quartier"] <- closest_quartier
         }
     }
 }
@@ -160,7 +163,8 @@ sum(is.na(data$clc_quartier))
 cat("ICI")
 
 
-#* les valeurs manquante de tronc_diam sont remplacé par la des tronc_diam de la meme espece et du meme age_estim (comprenant que les non NA et >0)
+#* les valeurs manquante de tronc_diam sont remplacé par la moyenne des tronc_diam de la meme espece et au même stade de développement
+#* Si on ne connait pas l'espèce on se base sur le diamètre des troncs qui ont ont le même age et feuillage (comprenant que les non NA et >0)
 #? OK!
 for (i in seq_len(nrow(data))) {
   if (is.na(data[i, "tronc_diam"])) {
@@ -208,7 +212,7 @@ for (i in seq_len(nrow(data))) {
     }
   }
 }
-sum(is.na(data$fk_stadedev))
+
 
 
 
