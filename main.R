@@ -114,6 +114,7 @@ for (i in 1:nrow(data)) {
 #* les ligne qui possède plus de 13 valeurs manquantes sont supprimées.
 #* Pourquoi 13 ? cf le rapport
 #? OK!
+nrow(data)
 data <- data[rowSums(is.na(data)) < 13,]
 nrow(data)
 
@@ -172,7 +173,6 @@ for (i in seq_len(nrow(data))) {
     fk_stadedev <- data[i, "fk_stadedev"]
     
     tronc_diam <- data$tronc_diam[data$nomfrancais == espece & data$fk_stadedev == fk_stadedev  & data$tronc_diam > 0]
-    cat("1 :",tronc_diam,"\n")    
     if (!all(is.na(tronc_diam))) {
       data[i, "tronc_diam"] <- round(mean(tronc_diam, na.rm = TRUE))
     } else {
@@ -181,9 +181,6 @@ for (i in seq_len(nrow(data))) {
       feuillage <- data[i, "feuillage"]
       
       tronc_diam <- data$tronc_diam[data$age_estim == age_estim & data$feuillage== feuillage & data$tronc_diam > 0]
-        cat("2 :",mean(tronc_diam,, na.rm = TRUE),"\n")
-        cat(data[i,age_estim],"\n")    
-
       if (!all(is.na(tronc_diam))) {
         data[i, "tronc_diam"] <- round(mean(tronc_diam, na.rm = TRUE))
       }
@@ -191,9 +188,6 @@ for (i in seq_len(nrow(data))) {
   }
 }
 
-
-
-sum(is.na(data$fk_stadedev))
 
 #* Les valeurs manquantes de fk_stadedev sont remplaces par le  fk_stadedev le plus frequent des arbres de la meme espece et du meme age_estim (comprenant que les non NA et >0)
 #* mettre fk_stadedev a "mort" si fk_arb_etat est differente de "en place" ou "non éssouché" ou "remplacé"
@@ -218,9 +212,7 @@ for (i in seq_len(nrow(data))) {
 
 #* remplace les NA de commentaire_environnement par "RAS"
 #? OK!
-sum(is.na(data$commentaire_environnement))
 data$commentaire_environnement[is.na(data$commentaire_environnement)] <- "RAS"
-sum(is.na(data$commentaire_environnement))
 
 #* remplacer les NA de age_estim a l'aide d'une regression lineaire entre les age_estim connus et leur tronc_diam connus de la meme espece qui determine la valeur de age_estim pour un tronc_diam donné
 #? OK!
