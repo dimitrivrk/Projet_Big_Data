@@ -84,6 +84,7 @@ for (i in 1:ncol(data)) {
 data <- data[!is.na(data$X) | !is.na(data$Y),]
 
 
+
 #* Suppression des doublons
 #? OK! Enfin je pense 
 #! A tester 
@@ -98,16 +99,109 @@ for (i in 1:nrow(data)) {
         data[i, "created_date"] <- data[i-1, "created_date"]
     }
 }
-# Définir l'opérateur infixe `//`
-`%//%` <- function(a, b) trunc(a / b)
-
 
 #* les ligne qui possède plus de 50% valeurs manquantes sont supprimées
 #? OK!
+
 nrow(data)
 data <- data[rowSums(is.na(data)) < 13,]
 nrow(data)
+sum(is.na(data$clc_quartier))
 
+
+#* formatage des nom 
+#* remplace les . de la colone created_user pas des espaces
+#? OK!
+data$created_user <- gsub("\\.", " ", data$created_user)
+
+
+
+
+# sum(is.na(data$clc_quartier))
+#* Les valeurs manquantes des quartier sont remplacées par la valeur du quartier du meme secteur si il est renseigné
+#* il est remplacé par la valeur du quartier de l'arbre le plus proche qui possède un quartier renseigné avec x=data[i, "X"] et y=data[i, "Y"] s'il est inferieur a 1km
+#? OK!
+for (i in 1:nrow(data)) {
+    if(is.na(data[i, "clc_quartier"])){
+        secteur <- data[i, "clc_secteur"]
+        quartier <- data[data$clc_secteur == secteur, "clc_quartier"]
+        if(!is.na(quartier[1])){
+            data[i, "clc_quartier"] <- quartier[1]
+        }else{
+            min_distance <- Inf
+            closest_quartier <- NA
+            for (j in 1:nrow(data)) {
+                if(!is.na(data[j, "clc_quartier"])){
+                    distance <- sqrt((data[i, "X"] - data[j, "X"])**2 + (data[i, "Y"] - data[j, "Y"])**2)
+                    if(distance < min_distance && distance < 275){
+                        min_distance <- distance
+                        closest_quartier <- data[j, "clc_quartier"]
+                    }
+                }
+            }
+            data[i, "clc_quartier"] <- closest_quartier
+        }
+    }
+}
+# sum(is.na(data$clc_quartier))
+
+sum(is.na(data$tronc_diam))
+
+#* les valeurs manquante de tronc_diam sont remplacé par la des tronc_diam de la meme espece et du meme age_estim (comprenant que les non NA et >0)
+#? OK!
+for (i in seq_len(nrow(data))) {
+  if (is.na(data[i, "tronc_diam"])) {
+    espece <- data[i, "nomfrancais"]
+    fk_stadedev <- data[i, "fk_stadedev"]
+    
+    tronc_diam <- data$tronc_diam[data$nomfrancais == espece & data$fk_stadedev == fk_stadedev  & data$tronc_diam > 0]
+    cat("1 :",tronc_diam,"\n")    
+    if (!all(is.na(tronc_diam))) {
+      data[i, "tronc_diam"] <- round(mean(tronc_diam, na.rm = TRUE))
+    } else {
+      
+      age_estim <- data[i, "age_estim"]
+      
+      
+      tronc_diam <- data$tronc_diam[data$age_estim == age_estim  & data$tronc_diam > 0]
+        cat("2 :",mean(tronc_diam,, na.rm = TRUE),"\n")
+        cat(data[i,age_estim],"\n")    
+
+      if (!all(is.na(tronc_diam))) {
+        data[i, "tronc_diam"] <- round(mean(tronc_diam, na.rm = TRUE))
+      }
+    }
+  }
+}
+
+
+sum(is.na(data$tronc_diam))
+
+
+sum(is.na(data$fk_stadedev))
+sum(data$fk_arb_etat != "en place")
+
+for(i in 1:nrow(data)){
+    if(data[i, "fk_arb_etat"] != "en place"){
+        data[i, "fk_stadedev"] <- "mort"
+    }
+}
+sum(is.na(data$fk_stadedev))
+
+
+
+
+
+
+# Ouvrir un appareil graphique PNG avec un fond transparent
+png("carte_des_arbres.png", bg = "transparent")
+
+# Afficher sur une carte les arbres à l'aide de leurs coordonnées X et Y
+plot(data$X, data$Y, col = "blue", pch = 19, cex = 0.1, 
+     main = "Carte des arbres", xlab = "X", ylab = "Y")
+
+# Fermer l'appareil graphique pour finaliser le fichier
+dev.off()
 
 
 
