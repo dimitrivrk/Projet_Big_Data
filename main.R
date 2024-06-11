@@ -201,6 +201,8 @@ for (i in seq_len(nrow(data))) {
     }
   }
 }
+# remove lines if we failed to predict the age
+data <- data[!is.na(data$age_estim), ]
 
 # remplacer tout les NA de clc_nbr_diag sont remplacé par 0
 #? OK!
