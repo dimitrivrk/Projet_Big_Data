@@ -7,6 +7,8 @@ data <- read.csv("Patrimoine_Arbore_SOURCE.csv",
 data <- data.frame(data)
 
 data[data == ""] <- NA
+data[data == " "] <- NA
+
 
 # pour chaque colonne modifier l'encodage  passe les en UTF8 car il ne le sont pas de base
 for (i in 1:ncol(data)) {
@@ -19,7 +21,7 @@ for (i in 1:ncol(data)) {
 #head(data)
 
 
-print(data[11229,])
+
 
 
 
@@ -29,7 +31,7 @@ print(data[11229,])
 data$X <- as.numeric(data$X)
 data$Y <- as.numeric(data$Y)
 data$OBJECTID <- as.numeric(data$OBJECTID)
-data$created_date <- as.POSIXct(data$created_date, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+data$created_date <- as.Date(data$created_date)
 data$created_user <- as.factor(data$created_user)
 data$src_geo <- as.factor(data$src_geo)
 data$clc_quartier <- as.factor(data$clc_quartier)
@@ -44,51 +46,59 @@ data$fk_port <- as.factor(data$fk_port)
 data$fk_pied <- as.factor(data$fk_pied)
 data$fk_situation <- as.factor(data$fk_situation)
 
-data$fk_revetement <- data$fk_revetement == "Oui"
+
+
+data$remarquable <- ifelse(data$remarquable == "Oui", TRUE, FALSE)
+data$fk_revetement <- ifelse(data$fk_revetement == "Oui", TRUE, FALSE)
+
+
 
 data$commentaire_environnement <- as.character(data$commentaire_environnement)
-data$dte_plantation <- as.POSIXct(data$dte_plantation, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+data$dte_plantation <- as.Date(data$dte_plantation)
 data$age_estim <- as.numeric(data$age_estim)
 data$fk_prec_estim <- as.numeric(data$fk_prec_estim)
 data$clc_nbr_diag <- as.numeric(data$clc_nbr_diag)
-data$dte_abattage <- as.POSIXct(data$dte_abattage, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+data$dte_abattage <- as.Date(data$dte_abattage)
 data$fk_nomtech <- as.character(data$fk_nomtech)
 data$last_edited_user <- as.factor(data$last_edited_user)
-data$last_edited_date <- as.POSIXct(data$last_edited_date, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+data$last_edited_date <- as.Date(data$last_edited_date)
 data$villeca <- as.factor(data$villeca)
 data$nomfrancais <- as.character(data$nomfrancais)
 data$nomlatin <- as.character(data$nomlatin)
 data$GlobalID <- as.character(data$GlobalID)
-data$CreationDate <- as.POSIXct(data$CreationDate, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+data$CreationDate <- as.Date(data$CreationDate)
 data$Creator <- as.factor(data$Creator)
-data$EditDate <- as.POSIXct(data$EditDate, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+data$EditDate <- as.Date(data$EditDate)
 data$Editor <- as.factor(data$Editor)
 data$feuillage <- as.factor(data$feuillage)
-
-data$remarquable <- data$remarquable == "Oui"
+data$remarquable <- as.character(data$remarquable)
 
 
 
 #* Nettoyage des données
 
+
 #* Mettre en minuscule les valeurs des colonnes
 #? OK!
+
 for (i in 1:ncol(data)) {
     if(is.factor(data[,i]) | is.character(data[,i])){
         data[,i] <- tolower(data[,i])
     }
 }
 
+
+
 #* Supprimer toute les lignes avec des valeurs manquantes en X ou Y
 #? OK!
 data <- data[!is.na(data$X) | !is.na(data$Y),]
-
 
 
 #* Suppression des doublons
 #? OK! Enfin je pense 
 #! A tester 
 data <- unique(data)
+
 
 #* Completer les lignes avec des valeurs manquantes
 #* created_date
@@ -106,18 +116,21 @@ for (i in 1:nrow(data)) {
 nrow(data)
 data <- data[rowSums(is.na(data)) < 13,]
 nrow(data)
-sum(is.na(data$clc_quartier))
-
 
 #* formatage des nom 
 #* remplace les . de la colone created_user pas des espaces
 #? OK!
 data$created_user <- gsub("\\.", " ", data$created_user)
+data$last_edited_user <- gsub("\\.", " ", data$last_edited_user)
+data$Creator <- gsub("\\.", " ", data$Creator)
+data$Editor <- gsub("\\.", " ", data$Editor)
 
 
 
 
-# sum(is.na(data$clc_quartier))
+
+
+sum(is.na(data$clc_quartier))
 #* Les valeurs manquantes des quartier sont remplacées par la valeur du quartier du meme secteur si il est renseigné
 #* il est remplacé par la valeur du quartier de l'arbre le plus proche qui possède un quartier renseigné avec x=data[i, "X"] et y=data[i, "Y"] s'il est inferieur a 1km
 #? OK!
@@ -143,9 +156,9 @@ for (i in 1:nrow(data)) {
         }
     }
 }
-# sum(is.na(data$clc_quartier))
+sum(is.na(data$clc_quartier))
+cat("ICI")
 
-sum(is.na(data$tronc_diam))
 
 #* les valeurs manquante de tronc_diam sont remplacé par la des tronc_diam de la meme espece et du meme age_estim (comprenant que les non NA et >0)
 #? OK!
@@ -163,7 +176,7 @@ for (i in seq_len(nrow(data))) {
       age_estim <- data[i, "age_estim"]
       feuillage <- data[i, "feuillage"]
       
-      tronc_diam <- data$tronc_diam[data$age_estim == age_estim  data$feuillage= feuillage & data$tronc_diam > 0]
+      tronc_diam <- data$tronc_diam[data$age_estim == age_estim & data$feuillage== feuillage & data$tronc_diam > 0]
         cat("2 :",mean(tronc_diam,, na.rm = TRUE),"\n")
         cat(data[i,age_estim],"\n")    
 
@@ -175,39 +188,86 @@ for (i in seq_len(nrow(data))) {
 }
 
 
-sum(is.na(data$tronc_diam))
-
 
 sum(is.na(data$fk_stadedev))
-sum(data$fk_arb_etat != "en place")
 
-for(i in 1:nrow(data)){
-    if(data[i, "fk_arb_etat"] != "en place"){
-        data[i, "fk_stadedev"] <- "mort"
+#* Les valeurs manquantes de fk_stadedev sont remplaces par le  fk_stadedev le plus frequent des arbres de la meme espece et du meme age_estim (comprenant que les non NA et >0)
+#* mettre fk_stadedev a "mort" si fk_arb_etat est differente de "en place" ou "non éssouché" ou "remplacé"
+#? OK!
+#TODO A REVOIR 
+for (i in seq_len(nrow(data))) {
+  if (is.na(data[i, "fk_stadedev"])) {
+    espece <- data[i, "nomfrancais"]
+    fk_arb_etat <- data[i, "fk_arb_etat"]
+    
+    fk_stadedev <- data$fk_stadedev[data$nomfrancais == espece & data$fk_arb_etat == fk_arb_etat]
+    if (!all(is.na(fk_stadedev))) {
+      data[i, "fk_stadedev"] <- names(sort(table(fk_stadedev), decreasing = TRUE))[1]
+    } else {
+      data[i, "fk_stadedev"] <- "mort"
     }
+  }
 }
 sum(is.na(data$fk_stadedev))
 
 
 
+#* remplace les NA de commentaire_environnement par "RAS"
+#? OK!
+sum(is.na(data$commentaire_environnement))
+data$commentaire_environnement[is.na(data$commentaire_environnement)] <- "RAS"
+sum(is.na(data$commentaire_environnement))
+
+#* remplacer les NA de age_estim a l'aide d'une regression lineaire entre les age_estim connus et leur tronc_diam connus de la meme espece qui determine la valeur de age_estim pour un tronc_diam donné
+#? OK!
+sum(is.na(data$age_estim))  
 
 
+for (i in seq_len(nrow(data))) {
+  if (is.na(data[i, "age_estim"])) {
+    espece <- data[i, "nomfrancais"]
+    age_estim <- data$age_estim[data$nomfrancais == espece & !is.na(data$age_estim) & data$tronc_diam > 0]
+    tronc_diam <- data$tronc_diam[data$nomfrancais == espece & !is.na(data$age_estim) & data$tronc_diam > 0]
+    if (!all(is.na(age_estim)) && !all(is.na(tronc_diam)) && !is.na(data[i, "tronc_diam"])) {
+      model <- lm(age_estim ~ tronc_diam - 1, data = data.frame(age_estim, tronc_diam))
+      data[i, "age_estim"] <- round(predict(model, data.frame(tronc_diam = data[i, "tronc_diam"])))
+    }
+  }
+}
 
-# Ouvrir un appareil graphique PNG avec un fond transparent
-png("carte_des_arbres.png", bg = "transparent")
-
-# Afficher sur une carte les arbres à l'aide de leurs coordonnées X et Y
-plot(data$X, data$Y, col = "blue", pch = 19, cex = 0.1, 
-     main = "Carte des arbres", xlab = "X", ylab = "Y")
-
-# Fermer l'appareil graphique pour finaliser le fichier
-dev.off()
+# remplacer tout les NA de clc_nbr_diag sont remplacé par 0
+#? OK!
+data$clc_nbr_diag[is.na(data$clc_nbr_diag)] <- 0
 
 
+sum(is.na(data$age_estim))  
+
+nrow(data)
 
 
+# #* les valeurs de remaquable sont remplacé a l'aide d'une regression linaire qui prend en compte les valeurs de tronc_diam et de haut_tot fk_stadedev et fk_arb_etat
+# #? OK!
+# cat("lala",sum(is.na(data$remarquable)), "\n")
+# for (i in seq_len(nrow(data))) {
+#     if (is.na(data[i, "remarquable"]) || data[i, "remarquable"] == 0) {
+#         # Filtrer les données valides pour le modèle
+#         valid_data <- data[!is.na(data$remarquable) & data$remarquable != 0 & !is.na(data$tronc_diam) & !is.na(data$haut_tot) , ]
+        
+#         # S'assurer qu'il y a suffisamment de données pour créer un modèle
+#         if (nrow(valid_data) > 1) {
+#             tronc_diam <- valid_data$tronc_diam
+#             haut_tot <- valid_data$haut_tot
+#             remarquable <- valid_data$remarquable
+            
+#             model <- lm(remarquable ~ tronc_diam + haut_tot +  + fk_arb_etat, data = valid_data)
+#             predicted_value <- predict(model, newdata = data.frame(tronc_diam = data[i, "tronc_diam"], haut_tot = data[i, "haut_tot"]))
+            
+#             data[i, "remarquable"] <- ifelse(predicted_value > 0.5, 1, 0)
+#         }
+#     }
+# }
 
-
+# sum(is.na(data$remarquable))
 
 
 
@@ -230,6 +290,12 @@ dev.off()
 
 # Affichage des premières lignes du jeu de données après nettoyage
 #head(data)
+
+
+
+#Créer des représentations graphiques
+#Exemple: répartition des arbres suivant leur stade de développement
+barplot(table(data$fk_stadedev), main = "Répartition des arbres suivant leur stade de développement", xlab = "Stade de développement", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
 
 
 # Histogramme de la hauteur totale
