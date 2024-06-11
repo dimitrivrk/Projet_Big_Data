@@ -1,9 +1,6 @@
-#import un autre fichier R
 source("main.R")
 
-#Créer des représentations graphiques
 
-cat("nombre NA Stadedev", sum(is.na(data$fk_stadedev)), "\n")
 #Exemple: répartition des arbres suivant leur stade de développement
 #barplot(table(data$fk_stadedev), main = "Répartition des arbres suivant leur stade de développement", xlab = "Stade de développement", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
 
