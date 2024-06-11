@@ -37,7 +37,7 @@ data$fk_stadedev <- as.factor(data$fk_stadedev)
 data$fk_port <- as.factor(data$fk_port)
 data$fk_pied <- as.factor(data$fk_pied)
 data$fk_situation <- as.factor(data$fk_situation)
-data$fk_revetement <- ifelse(data$fk_revetement == "Oui", TRUE, FALSE)
+data$fk_revetement <- ifelse(is.na(data$fk_revetement), FALSE, data$fk_revetement == "Oui")
 data$commentaire_environnement <- as.character(data$commentaire_environnement)
 data$dte_plantation <- as.Date(data$dte_plantation)
 data$age_estim <- as.numeric(data$age_estim)
@@ -56,7 +56,7 @@ data$Creator <- as.factor(data$Creator)
 data$EditDate <- as.Date(data$EditDate)
 data$Editor <- as.factor(data$Editor)
 data$feuillage <- as.factor(data$feuillage)
-data$remarquable <- ifelse(data$remarquable == "Oui", TRUE, FALSE)
+data$remarquable <- ifelse(is.na(data$remarquable), FALSE, data$remarquable == "Oui")
 
 
 #* Nettoyage des données
@@ -250,8 +250,8 @@ data$clc_nbr_diag[is.na(data$clc_nbr_diag)] <- 0
 # }
 
 
-# Affichage des premières lignes du jeu de données après nettoyage
-#head(data)
+# Affichage du jeu de données après nettoyage
+View(data)
 
 
 
