@@ -161,9 +161,9 @@ for (i in seq_len(nrow(data))) {
     } else {
       
       age_estim <- data[i, "age_estim"]
+      feuillage <- data[i, "feuillage"]
       
-      
-      tronc_diam <- data$tronc_diam[data$age_estim == age_estim  & data$tronc_diam > 0]
+      tronc_diam <- data$tronc_diam[data$age_estim == age_estim  data$feuillage= feuillage & data$tronc_diam > 0]
         cat("2 :",mean(tronc_diam,, na.rm = TRUE),"\n")
         cat(data[i,age_estim],"\n")    
 
