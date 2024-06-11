@@ -207,8 +207,11 @@ for (i in seq_len(nrow(data))) {
 data$clc_nbr_diag[is.na(data$clc_nbr_diag)] <- 0
 
 
+
+
+
 # #* les valeurs de remaquable sont remplacé a l'aide d'une regression linaire qui prend en compte les valeurs de tronc_diam et de haut_tot fk_stadedev et fk_arb_etat
-# #? OK!
+# #? pas OK
 # cat("lala",sum(is.na(data$remarquable)), "\n")
 # for (i in seq_len(nrow(data))) {
 #     if (is.na(data[i, "remarquable"]) || data[i, "remarquable"] == 0) {
@@ -230,16 +233,6 @@ data$clc_nbr_diag[is.na(data$clc_nbr_diag)] <- 0
 # }
 
 # sum(is.na(data$remarquable))
-
-
-
-
-
-# for (i in 1:ncol(data)) {
-#   if (is.numeric(data[,i])) {
-#     data[,i][is.na(data[,i])] <- median(data[,i], na.rm = TRUE)
-#   }
-# }
 
 
 # Détection des valeurs aberrantes
