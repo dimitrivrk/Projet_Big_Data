@@ -244,4 +244,4 @@ data$clc_nbr_diag[is.na(data$clc_nbr_diag)] <- 0
 
 
 # Affichage du jeu de données après nettoyage
-View(data)
+# View(data)
