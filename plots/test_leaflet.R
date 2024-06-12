@@ -15,6 +15,8 @@ transform_coord <- function(){
     return(sf_data_4326)
 }
 
+row_to_html_popup <- function (row){}
+
 data_ <- transform_coord()
 
 color_gradient <- colorRampPalette(c("#CCFFAA", "#115511"))
@@ -34,8 +36,15 @@ map <- leaflet(data_) %>%
         ),
         fillOpacity = 1,
         stroke = FALSE,
-        radius = ~tronc_diam *2 / 100 +1,
-        popup = ~paste(data_$nomfrancais, "<br>", data_$age_estim, " ans<br>", data$haut_tot, " de haut<br>", data_$tronc_diam, " de diametre")
-    )
+        radius = ~tronc_diam / 150 + 1,
+        popup = ~paste("<b>", data_$OBJECTID, "</b><br><i>",
+                       data_$nomfrancais, "</i><br>",
+                       data_$age_estim, " ans<br>",
+                       data$haut_tot, " de haut<br>",
+                       data_$tronc_diam, " de diametre<br><i>",
+                       data_$feuillage, "</i><br>",
+                       ifelse(data_$fk_arb_etat == "en place", "", data_$fk_arb_etat))
+    ) %>%
+    addScaleBar("bottomleft")
 
 map
