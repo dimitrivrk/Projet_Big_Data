@@ -1,7 +1,28 @@
 source("main.R")
 
-# model_age <- lm(age_estim ~ tronc_diam + haut_tot + haut_tronc + fk_stadedev + feuillage, data = data)
-# summary(model_age)
+
+library(ggplot2)
+theme_set(theme_minimal())
+
+nb_arb_quartier = table(data$clc_quartier)
+df_quartiers = as.data.frame(nb_arb_quartier)
+colnames(df_quartiers) <- c("Quartier", "nb_arb")
+moy <- mean(df_quartiers$nb_arb)
+df_quartiers$harmonise <- ifelse(df_quartiers$nb_arb < moy, 1, 0)
+
+ggplot(df_quartiers, aes(x=nb_arb, y=harmonise)) + geom_point() +
+    geom_smooth(method = "glm", method.args = list(family = "binomial"), se = FALSE)
+
+df_quartiers$harmonise <- ifelse(df_quartiers$nb_arb < moy, 1-(df_quartiers$nb_arb/moy)^2, 0)
+model_quartier_harmonie <- glm(harmonise ~ nb_arb , data = df_quartiers, family = quasibinomial(link = "logit"))
+
+ggplot(df_quartiers, aes(x=nb_arb, y=harmonise)) + geom_point() + ggtitle("harmonisation en fonction de la distance a la moyenne au carre") +
+    geom_smooth(method = "glm", method.args = list(family = quasibinomial(link = "logit")), se = FALSE)
+
+
+model_age <- lm(age_estim ~ tronc_diam + haut_tronc + fk_stadedev + feuillage, data = data)
+summary(model_age)
+
 
 # Coefficients:
 #                        Estimate Std. Error t value Pr(>|t|)
