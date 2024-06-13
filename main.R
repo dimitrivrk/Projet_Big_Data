@@ -48,7 +48,7 @@ data$fk_nomtech <- as.character(data$fk_nomtech)
 data$last_edited_user <- as.factor(data$last_edited_user)
 data$last_edited_date <- as.Date(data$last_edited_date)
 data$villeca <- as.factor(data$villeca)
-data$nomfrancais <- as.character(data$nomfrancais)
+data$nomfrancais <- as.factor(data$nomfrancais)
 data$nomlatin <- as.character(data$nomlatin)
 data$GlobalID <- as.character(data$GlobalID)
 data$CreationDate <- as.Date(data$CreationDate)
@@ -56,68 +56,109 @@ data$Creator <- as.factor(data$Creator)
 data$EditDate <- as.Date(data$EditDate)
 data$Editor <- as.factor(data$Editor)
 data$feuillage <- as.factor(data$feuillage)
-data$remarquable <- ifelse(is.na(data$remarquable), FALSE, data$remarquable == "Oui")
-
+data$remarquable <- ifelse(is.na(data$remarquable), NA, data$remarquable == "Oui")
 
 #* Nettoyage des données
-
-
 #* Mettre en minuscule les valeurs des colonnes
+#*
+#* Cette fonction prend en entrée un dataframe et met en minuscule les valeurs des colonnes qui sont de type factor ou character.
+#*
+#* @param data Le dataframe à nettoyer
+#* @return Le dataframe avec les valeurs des colonnes en minuscule
+#*
 #? OK!
-
-for (i in 1:ncol(data)) {
-    if(is.factor(data[,i]) | is.character(data[,i])){
-        data[,i] <- tolower(data[,i])
+clean_data <- function(data) {
+    for (i in 1:ncol(data)) {
+        if(is.factor(data[,i]) | is.character(data[,i])){
+                data[,i] <- tolower(data[,i])
+        }
     }
+    return(data)
 }
 
+data <- clean_data(data)
 
-#* Supprimer toute les lignes avec des valeurs manquantes en X ou Y
+#* Supprimer toutes les lignes avec des valeurs manquantes en X ou Y
+#*
+#* Cette fonction prend en entrée un dataframe et supprime toutes les lignes qui ont des valeurs manquantes en X ou Y.
+#*
+#* @param data Le dataframe contenant les données
+#* @return Le dataframe avec les lignes contenant des valeurs manquantes en X ou Y supprimées
+#*
 #? OK!
-data <- data[!is.na(data$X) | !is.na(data$Y),]
-
-
-#* Suppression des doublons
-#? OK! Enfin je pense 
-#! A tester 
-data <- unique(data)
-
-
-#* Completer les lignes avec des valeurs manquantes
-#* created_date
-#* Si pas de date on prend celle du dessus
-#? OK!
-for (i in 1:nrow(data)) {
-    if(is.na(data[i, "created_date"])){
-        data[i, "created_date"] <- data[i-1, "created_date"]
-    }
+remove_X_Y <- function(data) {
+    data <- data[!is.na(data$X) | !is.na(data$Y),]
+    return(data)
 }
 
-
-#* les ligne qui possède plus de 13 valeurs manquantes sont supprimées.
-#* Pourquoi 13 ? cf le rapport
-#? OK!
-nrow(data)
-data <- data[rowSums(is.na(data)) < 13,]
+data <- remove_X_Y(data)
 
 
-#* formatage des noms
-#* remplace les . de la colone created_user pas des espaces
-#* rq : ils sont déjà en miniscules
-#? OK!
-data$created_user <- gsub("\\.", " ", data$created_user)
-data$last_edited_user <- gsub("\\.", " ", data$last_edited_user)
-data$Creator <- gsub("\\.", " ", data$Creator)
-data$Editor <- gsub("\\.", " ", data$Editor)
+#* Fonction pour compléter les dates de création manquantes dans les données
+# 
+# Cette fonction parcourt les lignes du dataframe 'data' et remplace les valeurs manquantes
+# dans la colonne 'created_date' par la valeur de la ligne précédente.
+# 
+# Args:
+#   data: Le dataframe contenant les données à traiter
+# 
+# Returns:
+#   Le dataframe 'data' avec les dates de création complétées
+complete_created_date <- function(data) {
+    for (i in 1:nrow(data)) {
+        if (is.na(data[i, "created_date"])) {
+            data[i, "created_date"] <- data[i-1, "created_date"]
+        }
+    }
+    return(data)
+}
 
+data <- complete_created_date(data)
 
-#* Les valeurs manquantes des quartier sont remplacées par la valeur du quartier du meme secteur si il est renseigné
-#* il est remplacé par la valeur du quartier de l'arbre le plus proche qui possède un quartier renseigné avec x=data[i, "X"] et y=data[i, "Y"]
-#* on a fixé une distance limite de 275 qui n'est pas utilisé dans notre cas
-#* mais qui empecherait qu'un arbre vraiment loin soit ajouté à un quartier, il resterait alors non catégorisé
+remobe_NA_lines <- function(data) {
+    #* Supprime les lignes qui ont plus de 13 valeurs manquantes.
+    #* Cette fonction est utilisée pour nettoyer les données en éliminant les lignes avec un grand nombre de valeurs manquantes.
+    #* Les lignes avec moins de 13 valeurs manquantes sont conservées.
+    #* Paramètres:
+    #*   - data: Le jeu de données à nettoyer.
+    #* Retourne:
+    #*   Le jeu de données nettoyé, avec les lignes contenant plus de 13 valeurs manquantes supprimées.
+    data <- data[rowSums(is.na(data)) < 13,]
+    return(data)
+}
 
-#? OK!
-for (i in 1:nrow(data)) {
+data <- remobe_NA_lines(data)
+
+data$src_geo[is.na(data$src_geo)] <- "orthophoto"
+
+#* Fonction pour formater les noms
+#'
+#' Cette fonction prend en entrée un dataframe et remplace les points dans les colonnes
+#' created_user, last_edited_user, Creator et Editor par des espaces.
+#' Les noms doivent déjà être en minuscules.
+#'
+#' @param data Le dataframe contenant les données à formater
+#' @return Le dataframe avec les noms formatés
+#'
+formatage_noms <- function(data) {
+    data$created_user <- gsub("\\.", " ", data$created_user)
+    data$last_edited_user <- gsub("\\.", " ", data$last_edited_user)
+    data$Creator <- gsub("\\.", " ", data$Creator)
+    data$Editor <- gsub("\\.", " ", data$Editor)
+    return(data)
+}
+
+data <- formatage_noms(data)
+
+#' Remplace les valeurs manquantes dans la colonne "clc_quartier" en utilisant les valeurs de la même colonne pour le même secteur ou en utilisant la valeur du quartier le plus proche.
+#'
+#' @param data Le dataframe contenant les données.
+#' @return Le dataframe avec les valeurs manquantes dans la colonne "clc_quartier" remplacées.
+#'
+#' @details Cette fonction parcourt chaque ligne du dataframe et vérifie si la valeur de la colonne "clc_quartier" est manquante. Si c'est le cas, elle recherche d'abord une valeur non manquante dans la même colonne pour le même secteur. Si une telle valeur est trouvée, elle remplace la valeur manquante par cette valeur. Sinon, elle recherche le quartier le plus proche en calculant la distance euclidienne entre les coordonnées (X, Y) de la ligne actuelle et les coordonnées des autres lignes avec des valeurs non manquantes dans la colonne "clc_quartier". Si la distance est inférieure à 275, elle remplace la valeur manquante par le quartier le plus proche.
+#'
+replace_missing_quartier <- function(data) {
+    for (i in 1:nrow(data)) {
     if(is.na(data[i, "clc_quartier"])){
         secteur <- data[i, "clc_secteur"]
         quartier <- data[data$clc_secteur == secteur, "clc_quartier"]
@@ -137,7 +178,13 @@ for (i in 1:nrow(data)) {
             }
         }
     }
+    }
+    return(data)
 }
+
+
+# Mettre "orthophoto" dans toutes les valeurs de src_geo qui sont NA
+data <- replace_missing_quartier(data)
 
 
 #* les valeurs manquante de tronc_diam sont remplacé par la moyenne des tronc_diam de la meme espece et au même stade de développement
@@ -163,6 +210,33 @@ for (i in seq_len(nrow(data))) {
     }
   }
 }
+
+data$fk_nomtech[is.na(data$fk_nomtech)] <- "ras"
+data$nomfrancais[is.na(data$nomfrancais)] <- "ras"
+data$nomlatin[is.na(data$nomlatin)] <- "ras"
+data <- data[data$nomfrancais != "ras" & data$nomfrancais != "indéterminé",]
+
+
+#faire une regression logistique pour completer les valeurs manquantes de remarquable en fonction de la haut_tot, tronc_diam, hau_tronc et nomfrancais
+#? OK!
+cat("remarquable :",sum(is.na(data$remarquable)))
+# Perform logistic regression
+logistic_regression <- glm(remarquable ~ nomfrancais + haut_tot + tronc_diam + haut_tronc + as.factor(fk_stadedev), data = data, family = binomial)
+
+# Predict the values of remarquable using the logistic regression model
+for (i in seq_len(nrow(data))) {
+  if (is.na(data[i, "remarquable"])) {
+    data[i, "remarquable"] <- predict(logistic_regression, newdata = data[i, ], type = "response")
+  }
+}
+
+# Convert the predicted values to TRUE or FALSE based on a threshold
+data$remarquable <- ifelse(data$remarquable > 0.5, TRUE, FALSE)
+
+sum(is.na(data$remarquable))
+
+
+
 
 
 #* Les valeurs manquantes de fk_stadedev sont remplaces par le  fk_stadedev le plus frequent des arbres de la meme espece et du meme age_estim (comprenant que les non NA et >0)
@@ -190,22 +264,98 @@ data$commentaire_environnement[is.na(data$commentaire_environnement)] <- "RAS"
 
 #* remplacer les NA de age_estim a l'aide d'une regression lineaire entre les age_estim connus et leur tronc_diam connus de la meme espece qui determine la valeur de age_estim pour un tronc_diam donné
 #? OK!
-for (i in seq_len(nrow(data))) {
-  if (is.na(data[i, "age_estim"])) {
-    espece <- data[i, "nomfrancais"]
-    age_estim <- data$age_estim[data$nomfrancais == espece & !is.na(data$age_estim) & data$tronc_diam > 0]
-    tronc_diam <- data$tronc_diam[data$nomfrancais == espece & !is.na(data$age_estim) & data$tronc_diam > 0]
-    if (!all(is.na(age_estim)) && !all(is.na(tronc_diam)) && !is.na(data[i, "tronc_diam"])) {
-      model <- lm(age_estim ~ tronc_diam - 1, data = data.frame(age_estim, tronc_diam))
-      data[i, "age_estim"] <- round(predict(model, data.frame(tronc_diam = data[i, "tronc_diam"])))
+
+
+# Function to replace missing age_estim values
+replace_missing_age_estim <- function(data) {
+  for (i in seq_len(nrow(data))) {
+    if (is.na(data[i, "age_estim"])) {
+      vector <- c()
+      for (j in c('tronc_diam', 'haut_tot', 'haut_tronc', 'fk_stadedev')) {
+        if (!is.na(data[i, j])) {
+          vector <- c(vector, j)
+        }
+      }
+      if (length(vector) > 0) {
+        # Vérifier et exclure les prédicteurs colinéaires
+        formula <- as.formula(paste("age_estim ~", paste(vector, collapse = " + ")))
+        model <- lm(formula, data = data, na.action = na.exclude)
+        new_data <- data.frame(
+          tronc_diam = data[i, "tronc_diam"],
+          haut_tot = data[i, "haut_tot"],
+          haut_tronc = data[i, "haut_tronc"],
+          fk_stadedev = data[i, "fk_stadedev"]
+        )
+        # Garder seulement les colonnes présentes dans le modèle
+        new_data <- new_data[, vector, drop = FALSE]
+        predicted_value <- predict(model, newdata = new_data)
+        data[i, "age_estim"] <- max(round(predicted_value), 0)
+      }
     }
   }
+  return(data)
 }
+
+#supprimer les lignes avec des valeurs manquantes dans la colonne nomfrancais
+
+
+impute_feuillage_simple <- function(data) {
+  cat("Nombre de valeurs manquantes avant : ", sum(is.na(data$feuillage)), "\n")
+  
+  for (i in seq_len(nrow(data))) {
+    if (is.na(data[i, "feuillage"])) {
+      espece <- data[i, "nomfrancais"]
+      feuillage <- data$feuillage[data$nomfrancais == espece & !is.na(data$feuillage)]
+      if (length(feuillage) > 0) {
+        data[i, "feuillage"] <- feuillage[1]
+      }
+    }
+  }
+  
+  cat("Nombre de valeurs manquantes après : ", sum(is.na(data$feuillage)), "\n")
+  
+  return(data)
+}
+
+# Utilisation de la fonction
+data <- impute_feuillage_simple(data)
+print(data[is.na(data$feuillage), ])
+
+
+
+
+# for (i in seq_len(nrow(data))) {
+#     if (is.na(data[i, "feuillage"])){
+#         espece <- data[i, "nomfrancais"]
+#         feuillage <- data$feuillage[data$nomfrancais == espece]
+#         model <- glm(ifelse(feuillage=="feullu",1,0) ~ nomfrancais, data = data, family = binomial)
+#         data[i, "feuillage"] <- ifelse(predict(model, type = "response") > 0.5, "feullu", "conifère")
+#     }
+# }
+
+
+
+# # Convertir les valeurs de feuillage en valeurs binaires (0 et 1)
+# data$feuillage_bin <- ifelse(data$feuillage == "feullu", 1, 0)
+
+# # Régression logistique pour déterminer le feuillage
+# model <- glm(feuillage_bin ~ nomfrancais, data = data, family = binomial)
+# data$feuillage_bin <- ifelse(predict(model, type = "response") > 0.5, 1, 0)
+
+
+
+
+
+# Afficher le nombre de valeurs manquantes avant et après l'exécution de la fonction
+cat("Nombre de valeurs manquantes avant : ", sum(is.na(data$age_estim)), "\n")
+data <- replace_missing_age_estim(data)
+cat("Nombre de valeurs manquantes après : ", sum(is.na(data$age_estim)), "\n")
 
 # remplacer tout les NA de clc_nbr_diag sont remplacé par 0
 #? OK!
 data$clc_nbr_diag[is.na(data$clc_nbr_diag)] <- 0
 
+nrow(data)
 
 
 
