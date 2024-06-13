@@ -271,7 +271,7 @@ replace_missing_age_estim <- function(data) {
   for (i in seq_len(nrow(data))) {
     if (is.na(data[i, "age_estim"])) {
       vector <- c()
-      for (j in c('tronc_diam', 'haut_tot', 'haut_tronc', 'fk_stadedev')) {
+      for (j in c('tronc_diam', 'haut_tronc', 'fk_stadedev','feuillage')) {
         if (!is.na(data[i, j])) {
           vector <- c(vector, j)
         }
@@ -282,9 +282,10 @@ replace_missing_age_estim <- function(data) {
         model <- lm(formula, data = data, na.action = na.exclude)
         new_data <- data.frame(
           tronc_diam = data[i, "tronc_diam"],
-          haut_tot = data[i, "haut_tot"],
           haut_tronc = data[i, "haut_tronc"],
-          fk_stadedev = data[i, "fk_stadedev"]
+          fk_stadedev = data[i, "fk_stadedev"],
+          feuillage = data[i, "feuillage"]
+
         )
         # Garder seulement les colonnes présentes dans le modèle
         new_data <- new_data[, vector, drop = FALSE]
@@ -295,10 +296,13 @@ replace_missing_age_estim <- function(data) {
   }
   return(data)
 }
-# remove lines if we failed to predict the age
+
+cat("Nombre de valeurs manquantes avant : ", sum(is.na(data$age_estim)), "\n")
+data <- replace_missing_age_estim(data)
+cat("Nombre de valeurs manquantes après : ", sum(is.na(data$age_estim)), "\n")
+
 data <- data[!is.na(data$age_estim), ]
 
-#supprimer les lignes avec des valeurs manquantes dans la colonne nomfrancais
 
 
 impute_feuillage_simple <- function(data) {
@@ -326,32 +330,10 @@ print(data[is.na(data$feuillage), ])
 
 
 
-# for (i in seq_len(nrow(data))) {
-#     if (is.na(data[i, "feuillage"])){
-#         espece <- data[i, "nomfrancais"]
-#         feuillage <- data$feuillage[data$nomfrancais == espece]
-#         model <- glm(ifelse(feuillage=="feullu",1,0) ~ nomfrancais, data = data, family = binomial)
-#         data[i, "feuillage"] <- ifelse(predict(model, type = "response") > 0.5, "feullu", "conifère")
-#     }
-# }
-
-
-
-# # Convertir les valeurs de feuillage en valeurs binaires (0 et 1)
-# data$feuillage_bin <- ifelse(data$feuillage == "feullu", 1, 0)
-
-# # Régression logistique pour déterminer le feuillage
-# model <- glm(feuillage_bin ~ nomfrancais, data = data, family = binomial)
-# data$feuillage_bin <- ifelse(predict(model, type = "response") > 0.5, 1, 0)
 
 
 
 
-
-# Afficher le nombre de valeurs manquantes avant et après l'exécution de la fonction
-cat("Nombre de valeurs manquantes avant : ", sum(is.na(data$age_estim)), "\n")
-data <- replace_missing_age_estim(data)
-cat("Nombre de valeurs manquantes après : ", sum(is.na(data$age_estim)), "\n")
 
 # remplacer tout les NA de clc_nbr_diag sont remplacé par 0
 #? OK!
@@ -362,78 +344,13 @@ nrow(data)
 
 
 
-# #* les valeurs de remaquable sont remplacé a l'aide d'une regression linaire qui prend en compte les valeurs de tronc_diam et de haut_tot fk_stadedev et fk_arb_etat
-# #? pas OK
-# cat("lala",sum(is.na(data$remarquable)), "\n")
-# for (i in seq_len(nrow(data))) {
-#     if (is.na(data[i, "remarquable"]) || data[i, "remarquable"] == 0) {
-#         # Filtrer les données valides pour le modèle
-#         valid_data <- data[!is.na(data$remarquable) & data$remarquable != 0 & !is.na(data$tronc_diam) & !is.na(data$haut_tot) , ]
-        
-#         # S'assurer qu'il y a suffisamment de données pour créer un modèle
-#         if (nrow(valid_data) > 1) {
-#             tronc_diam <- valid_data$tronc_diam
-#             haut_tot <- valid_data$haut_tot
-#             remarquable <- valid_data$remarquable
-            
-#             model <- lm(remarquable ~ tronc_diam + haut_tot +  + fk_arb_etat, data = valid_data)
-#             predicted_value <- predict(model, newdata = data.frame(tronc_diam = data[i, "tronc_diam"], haut_tot = data[i, "haut_tot"]))
-            
-#             data[i, "remarquable"] <- ifelse(predicted_value > 0.5, 1, 0)
-#         }
-#     }
-# }
-
-# sum(is.na(data$remarquable))
-
-
-# Détection des valeurs aberrantes
-# Suppression des valeurs aberrantes pour toutes les colonnes
-# for (i in 1:ncol(data)) {
-#     outliers <- boxplot.stats(data[, i])$out
-#     data <- data[!data[, i] %in% outliers, ]
-# }
-
-
-# Affichage du jeu de données après nettoyage
-# View(data)
-
-data$X <- as.numeric(data$X)
-data$Y <- as.numeric(data$Y)
-data$OBJECTID <- as.numeric(data$OBJECTID)
-data$created_date <- as.Date(data$created_date)
-data$created_user <- as.factor(data$created_user)
-data$src_geo <- as.factor(data$src_geo)
-data$clc_quartier <- as.factor(data$clc_quartier)
-data$clc_secteur <- as.factor(data$clc_secteur)
-data$id_arbre <- as.factor(data$id_arbre)
-data$haut_tot <- as.numeric(data$haut_tot)
-data$haut_tronc <- as.numeric(data$haut_tronc)
-data$tronc_diam <- as.numeric(data$tronc_diam)
-data$fk_arb_etat <- as.factor(data$fk_arb_etat)
-data$fk_stadedev <- as.factor(data$fk_stadedev)
-data$fk_port <- as.factor(data$fk_port)
-data$fk_pied <- as.factor(data$fk_pied)
-data$fk_situation <- as.factor(data$fk_situation)
-# data$fk_revetement <- ifelse(is.na(data$fk_revetement), FALSE, data$fk_revetement == "Oui")
-data$commentaire_environnement <- as.character(data$commentaire_environnement)
-data$dte_plantation <- as.Date(data$dte_plantation)
-data$age_estim <- as.numeric(data$age_estim)
-data$fk_prec_estim <- as.numeric(data$fk_prec_estim)
-data$clc_nbr_diag <- as.numeric(data$clc_nbr_diag)
-data$dte_abattage <- as.Date(data$dte_abattage)
-data$fk_nomtech <- as.character(data$fk_nomtech)
-data$last_edited_user <- as.factor(data$last_edited_user)
-data$last_edited_date <- as.Date(data$last_edited_date)
-data$villeca <- as.factor(data$villeca)
-data$nomfrancais <- as.character(data$nomfrancais)
-data$nomlatin <- as.character(data$nomlatin)
-data$GlobalID <- as.character(data$GlobalID)
-data$CreationDate <- as.Date(data$CreationDate)
-data$Creator <- as.factor(data$Creator)
-data$EditDate <- as.Date(data$EditDate)
-data$Editor <- as.factor(data$Editor)
-data$feuillage <- as.factor(data$feuillage)
-# data$remarquable <- ifelse(is.na(data$remarquable), FALSE, data$remarquable == "Oui")
-
 rm(list=setdiff(ls(), "data"))
+
+
+# Quels sont les liens entre les variables ?
+# Exemple : si on veut estimer la variable âge de l’arbre, quelles sont les variables importantes dans son estimation?
+# • Conduire des analyses bivariées
+# • Etude des relaƟons entre variables qualitaƟves
+# Faire des tableaux croisés et des tests d’indépendance du chi2 sur les
+# tableaux entre les différentes variables
+# Représenter graphiquement ces tableaux (mosaicplot) et les analyser
