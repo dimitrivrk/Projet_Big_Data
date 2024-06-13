@@ -295,6 +295,8 @@ replace_missing_age_estim <- function(data) {
   }
   return(data)
 }
+# remove lines if we failed to predict the age
+data <- data[!is.na(data$age_estim), ]
 
 #supprimer les lignes avec des valeurs manquantes dans la colonne nomfrancais
 
@@ -394,5 +396,44 @@ nrow(data)
 
 
 # Affichage du jeu de données après nettoyage
-#View(data)
+# View(data)
 
+data$X <- as.numeric(data$X)
+data$Y <- as.numeric(data$Y)
+data$OBJECTID <- as.numeric(data$OBJECTID)
+data$created_date <- as.Date(data$created_date)
+data$created_user <- as.factor(data$created_user)
+data$src_geo <- as.factor(data$src_geo)
+data$clc_quartier <- as.factor(data$clc_quartier)
+data$clc_secteur <- as.factor(data$clc_secteur)
+data$id_arbre <- as.factor(data$id_arbre)
+data$haut_tot <- as.numeric(data$haut_tot)
+data$haut_tronc <- as.numeric(data$haut_tronc)
+data$tronc_diam <- as.numeric(data$tronc_diam)
+data$fk_arb_etat <- as.factor(data$fk_arb_etat)
+data$fk_stadedev <- as.factor(data$fk_stadedev)
+data$fk_port <- as.factor(data$fk_port)
+data$fk_pied <- as.factor(data$fk_pied)
+data$fk_situation <- as.factor(data$fk_situation)
+# data$fk_revetement <- ifelse(is.na(data$fk_revetement), FALSE, data$fk_revetement == "Oui")
+data$commentaire_environnement <- as.character(data$commentaire_environnement)
+data$dte_plantation <- as.Date(data$dte_plantation)
+data$age_estim <- as.numeric(data$age_estim)
+data$fk_prec_estim <- as.numeric(data$fk_prec_estim)
+data$clc_nbr_diag <- as.numeric(data$clc_nbr_diag)
+data$dte_abattage <- as.Date(data$dte_abattage)
+data$fk_nomtech <- as.character(data$fk_nomtech)
+data$last_edited_user <- as.factor(data$last_edited_user)
+data$last_edited_date <- as.Date(data$last_edited_date)
+data$villeca <- as.factor(data$villeca)
+data$nomfrancais <- as.character(data$nomfrancais)
+data$nomlatin <- as.character(data$nomlatin)
+data$GlobalID <- as.character(data$GlobalID)
+data$CreationDate <- as.Date(data$CreationDate)
+data$Creator <- as.factor(data$Creator)
+data$EditDate <- as.Date(data$EditDate)
+data$Editor <- as.factor(data$Editor)
+data$feuillage <- as.factor(data$feuillage)
+# data$remarquable <- ifelse(is.na(data$remarquable), FALSE, data$remarquable == "Oui")
+
+rm(list=setdiff(ls(), "data"))
