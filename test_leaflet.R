@@ -19,7 +19,7 @@ row_to_html_popup <- function (row){}
 
 data_ <- transform_coord()
 
-color_gradient <- colorRampPalette(c("#CCFFAA", "#115511"))
+color_gradient <- colorRampPalette(c("#ff99ff", "#4d004d"))
 age_colors <- color_gradient(200)[data$age_estim]
 
 map <- leaflet(data_) %>%
