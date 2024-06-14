@@ -1,8 +1,15 @@
 source("main.R")
 
 
+library(corrplot)
 library(ggplot2)
 theme_set(theme_minimal())
+
+plot_correlations <- function (){
+    data_cor <- data[, sapply(data, is.numeric)]
+    data_cor <- subset(data_cor, select = -c(fk_prec_estim, OBJECTID))
+    corrplot(cor(data_cor), method = 'number')
+}
 
 planter_arbre <- function (){
     nb_arb_quartier = table(data$clc_quartier)
@@ -63,3 +70,9 @@ find_trees_to_cut <- function (){
     print("OBJECTID des arbres a abattre")
     print(a_abbattre)   # 1480 1481 1483 6291 6963 6971 7263 7312
 }
+
+tab <- table(data$haut_tot, data$haut_tronc)
+print(tab)
+
+chi2_test <- chisq.test(tab)
+print(chi2_test)
