@@ -7,3 +7,4 @@ source("export.R")  # export_csv()
 
 
 # call a function loaded from the files above
+# call plot_quartiers() at the very end because it creates a layout of 2 subplots and it remains for the other plots
