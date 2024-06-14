@@ -114,3 +114,5 @@ perform_chi2_tests <- function(data) {
     
     mosaicplot(table_remarquable_fk_situation, main = "Relation entre remaquable et fk_situation", cex.axis = 1.2)
 }
+
+perform_chi2_tests(data)

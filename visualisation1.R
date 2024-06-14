@@ -10,8 +10,6 @@ plot_tree_distribution <- function(data) {
 }
 
 
-
-
 plot_types_feuillage <- function(data) {
   #' Fonction qui permet de visualiser la répartition des types de feuillage des arbres
   #' @param data le jeu de données
@@ -37,19 +35,25 @@ plot_boxplot_tronc_diam <- function(data) {
   boxplot(data$tronc_diam, main = "Boxplot du diamètre du tronc", xlab = "Diamètre du tronc", col = "lightblue", border = "black")
 }
 
-
-plot_types_feuillage <- function(data) {
-  #' Fonction qui permet de visualiser la répartition des types de feuillage des arbres
+plot_boxplot_hauteur_quartier <- function(data) {
+  #' Fonction qui permet de visualiser le boxplot de la hauteur totale des arbres par quartier
   #' @param data le jeu de données
-  #' @return un graphique de répartition des types de feuillage des arbres
+  #' @return un graphique boxplot de la hauteur totale des arbres par quartier
   #' 
-  barplot(table(data$feuillage), main = "Répartition des types de feuillage", xlab = "Type de feuillage", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
+  par(mar = c(5, 15, 4, 2))
+  boxplot(data$haut_tot ~ data$clc_quartier, 
+          main = "Boxplot de la hauteur totale par quartier", 
+          xlab = "Quartier", 
+          ylab = "Hauteur totale",
+          col = "lightblue", 
+          border = "black",
+          horizontal = TRUE,
+          las = 1,
+          range = 2)
 }
 
 
-
 # # Créer des histogrammes
-# # Exemple: Quantité d’arbres en fonction du quartier/secteur, de sa situation
 create_histogram <- function(data, quartier) {
   #' Fonction qui crée un histogramme de la quantité d'arbres en fonction du quartier
   #' @param data le jeu de données
@@ -57,6 +61,14 @@ create_histogram <- function(data, quartier) {
   #' @return un graphique d'histogramme de la quantité d'arbres pour le quartier spécifié
   #' 
   hist(data$haut_tot[data$clc_quartier == quartier], main = "Quantité d'arbres en fonction du quartier", xlab = "Hauteur totale", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
+}
+
+plot_histogram_hauteur_totale <- function(data) {
+  #' Fonction qui permet de visualiser l'histogramme de la hauteur totale des arbres
+  #' @param data le jeu de données
+  #' @return un graphique d'histogramme de la hauteur totale des arbres
+  #' 
+  hist(data$haut_tot, main = "Histogramme de la hauteur totale", xlab = "Hauteur totale", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
 }
 
 
@@ -89,3 +101,11 @@ plot_arbre_quartier <- function(data, unique_quartiers){
       col = sorted_colors, 
       border = "black", las = 1, horiz = TRUE, cex.names = 1.8)
 }
+
+
+plot_tree_distribution(data)
+plot_types_feuillage(data)
+plot_boxplot_tronc_diam(data)
+plot_boxplot_hauteur_quartier(data)
+plot_histogram_hauteur_totale(data)
+plot_arbre_quartier(data, unique_quartiers)
