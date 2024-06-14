@@ -84,6 +84,7 @@ find_trees_to_cut <- function (){
     # et on n'essaie pas d'abattre un arbre déjà abattu :)
     test_data <- data[data$fk_arb_etat == "en place" & !data$remarquable, ]
     results <- predict(model_abattre, newdata = test_data, type = "response")
+    par(mar = c(5, 5, 5, 5))
     plot(results)
     indexes <- which(results > 0.8)
     a_abbattre <- test_data[indexes, "OBJECTID"]

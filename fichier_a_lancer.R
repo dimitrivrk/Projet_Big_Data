@@ -7,5 +7,3 @@ source("export.R")  # export_csv()
 
 
 # call a function loaded from the files above
-
-plot_tree_distribution()
