@@ -1,6 +1,10 @@
 source("main.R")
 
 plot_carte <- function(){
+    #' Fonction qui permet de visualiser la carte des arbres
+    #' @param data le jeu de données
+    #' @return un graphique de la carte des arbres
+    #' 
     # green color gradient based on age
     color_gradient <- colorRampPalette(c("#CCFFAA", "#115511"))
     age_colors <- color_gradient(90)[data$age_estim]
@@ -37,6 +41,10 @@ plot_carte <- function(){
 }
 
 plot_quartiers <- function(){
+    #' Fonction qui permet de visualiser la répartition des arbres par quartier
+    #' @param data le jeu de données
+    #' @return un graphique de répartition des arbres par quartier
+    #' 
     # Generate a color vector based on clc_quartier
     unique_quartiers <- unique(data$clc_quartier)
     color_vector <- rainbow(length(unique_quartiers))  # Or use any other color palette

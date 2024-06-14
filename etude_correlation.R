@@ -6,12 +6,22 @@ library(ggplot2)
 theme_set(theme_minimal())
 
 plot_correlations <- function (){
+    #' Fonction qui permet de visualiser les corrélations entre les variables numériques
+    #' de notre jeu de données
+    #' @param data le jeu de données
+    #' @return un graphique de corrélation
+    #' 
     data_cor <- data[, sapply(data, is.numeric)]
     data_cor <- subset(data_cor, select = -c(fk_prec_estim, OBJECTID))
     corrplot(cor(data_cor), method = 'number')
 }
 
 planter_arbre <- function (){
+    #' Fonction qui permet de visualiser la répartition des arbres plantés
+    #' en fonction de leur année de plantation
+    #' @param data le jeu de données
+    #' @return un graphique de répartition des arbres plantés
+    #' 
     nb_arb_quartier = table(data$clc_quartier)
     df_quartiers = as.data.frame(nb_arb_quartier)
     colnames(df_quartiers) <- c("Quartier", "nb_arb")
@@ -29,6 +39,10 @@ planter_arbre <- function (){
 }
 
 find_explicative_var_for_age <- function (){
+    #' Fonction qui permet de trouver les variables explicatives pour l'âge estimé
+    #' @param data le jeu de données
+    #' @return les variables explicatives
+    #' 
     model_age <- lm(age_estim ~ tronc_diam + haut_tronc + fk_stadedev + feuillage, data = data)
     summary(model_age)
 }
@@ -47,6 +61,10 @@ find_explicative_var_for_age <- function (){
 
 
 find_trees_to_cut <- function (){
+    #' Fonction qui permet de trouver les arbres à abattre
+    #' @param data le jeu de données
+    #' @return les arbres à abattre
+    #' 
     model_abattre <- glm(fk_arb_etat != "en place" ~ haut_tot + tronc_diam + fk_stadedev,
                       data = data,
                       family = binomial)
@@ -70,9 +88,29 @@ find_trees_to_cut <- function (){
     print("OBJECTID des arbres a abattre")
     print(a_abbattre)   # 1480 1481 1483 6291 6963 6971 7263 7312
 }
-
-tab <- table(data$haut_tot, data$haut_tronc)
-print(tab)
-
-chi2_test <- chisq.test(tab)
-print(chi2_test)
+perform_chi2_tests <- function(data) {
+    #' Fonction qui permet de réaliser des tests du chi2 et d'afficher les résultats sous forme de tableau
+    #' @param data le jeu de données
+    #' @return les résultats des tests
+    #' 
+    tab <- table(data$haut_tot, data$haut_tronc)
+    print(tab)
+    
+    chi2_test <- chisq.test(tab)
+    print(chi2_test)
+    
+    table_remarquable_feuillage <- table(data$remarquable, data$feuillage)
+    
+    chi2_test <- chisq.test(data$remarquable, data$feuillage)
+    print(chi2_test)
+    
+    table_remarquable_fk_situation <- table(data$remarquable, data$fk_situation)
+    print(table_remarquable_fk_situation)
+    
+    chi2_test <- chisq.test(data$remarquable, data$fk_situation)
+    print(chi2_test)
+    
+    mosaicplot(table_remarquable_feuillage, main = "Relation entre remarquable et feuillage", cex.axis = 1.2)
+    
+    mosaicplot(table_remarquable_fk_situation, main = "Relation entre remaquable et fk_situation", cex.axis = 1.2)
+}
