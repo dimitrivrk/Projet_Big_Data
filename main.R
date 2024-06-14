@@ -350,7 +350,33 @@ rm(list=setdiff(ls(), "data"))
 # Quels sont les liens entre les variables ?
 # Exemple : si on veut estimer la variable âge de l’arbre, quelles sont les variables importantes dans son estimation?
 # • Conduire des analyses bivariées
-# • Etude des relaƟons entre variables qualitaƟves
-# Faire des tableaux croisés et des tests d’indépendance du chi2 sur les
+# • Etude des relations entre variables qualitatives
+# Faire des tableaux croisés et des tests d'indépendance du chi2 sur les
 # tableaux entre les différentes variables
 # Représenter graphiquement ces tableaux (mosaicplot) et les analyser
+
+# Conduire des analyses bivariées
+# Exemple : Analyse de la relation entre les variables "remarquable" et "feuillage"
+table_remarquable_feuillage <- table(data$remarquable, data$feuillage)
+print(table_remarquable_feuillage)
+
+# Test d'indépendance du chi2 entre les variables "remarquable" et "feuillage"
+chi2_test <- chisq.test(data$remarquable, data$feuillage)
+print(chi2_test)
+
+# Etude des relations entre variables qualitatives
+# Exemple : Analyse de la relation entre les variables "nomfrancais" et "feuillage"
+table_nomfrancais_feuillage <- table(data$nomfrancais, data$feuillage)
+print(table_nomfrancais_feuillage)
+
+# Test d'indépendance du chi2 entre les variables "nomfrancais" et "feuillage"
+chi2_test <- chisq.test(data$nomfrancais, data$feuillage)
+print(chi2_test)
+
+# Représenter graphiquement les tableaux croisés
+# Exemple : Mosaic plot de la relation entre les variables "remarquable" et "feuillage"
+mosaicplot(table_remarquable_feuillage, main = "Relation entre remarquable et feuillage")
+
+# Exemple : Mosaic plot de la relation entre les variables "nomfrancais" et "feuillage"
+mosaicplot(table_nomfrancais_feuillage, main = "Relation entre nomfrancais et feuillage")
+
