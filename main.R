@@ -9,15 +9,27 @@ data <- data.frame(data)
 data[data == ""] <- NA
 data[data == " "] <- NA
 
-# Boucle pour convertir les colonnes du dataframe 'data' de l'encodage latin1 à l'encodage UTF-8
-for (i in 1:ncol(data)) {
-  data[,i] <- iconv(data[,i], from="latin1",to = "UTF-8")
+convert_encoding <- function(data) {
+  #' Convertit l'encodage des colonnes du dataframe en UTF-8
+  #' @param data Le dataframe contenant les données
+  #' @return Le dataframe avec les colonnes converties en UTF-8
+  #' 
+
+  for (i in 1:ncol(data)) {
+    data[,i] <- iconv(data[,i], from="latin1", to="UTF-8")
+  }
+  return(data)
 }
+
+data <- convert_encoding(data)
 
 
 
 convert_data_types <- function(data) {
-  # Conversion des types de données
+  #' Convertit les types de données des colonnes du dataframe
+  #' @param data Le dataframe contenant les données
+  #' @return Le dataframe avec les types de données convertis
+  #' 
   data$X <- as.numeric(data$X)
   data$Y <- as.numeric(data$Y)
   data$OBJECTID <- as.numeric(data$OBJECTID)
@@ -62,14 +74,10 @@ data <- convert_data_types(data)
 
 
 clean_data <- function(data) {
-  #* Nettoyage des données
-  #* Mettre en minuscule les valeurs des colonnes
-  #*
-  #* Cette fonction prend en entrée un dataframe et met en minuscule les valeurs des colonnes qui sont de type factor ou character.
-  #*
-  #* @param data Le dataframe à nettoyer
-  #* @return Le dataframe avec les valeurs des colonnes en minuscule
-  #*
+  #' Nettoie les données en mettant les valeurs des colonnes de type caractère en minuscules
+  #' @param data Le dataframe contenant les données
+  #' @return Le dataframe avec les valeurs des colonnes de type caractère en minuscules
+  #' 
     for (i in 1:ncol(data)) {
         if(is.factor(data[,i]) | is.character(data[,i])){
                 data[,i] <- tolower(data[,i])
@@ -81,13 +89,10 @@ data <- clean_data(data)
 
 
 remove_X_Y <- function(data) {
-  #* Supprimer toutes les lignes avec des valeurs manquantes en X ou Y
-  #*
-  #* Cette fonction prend en entrée un dataframe et supprime toutes les lignes qui ont des valeurs manquantes en X ou Y.
-  #*
-  #* @param data Le dataframe contenant les données
-  #* @return Le dataframe avec les lignes contenant des valeurs manquantes en X ou Y supprimées
-  #*
+  #' Supprime les lignes avec des valeurs manquantes dans les colonnes X et Y
+  #' @param data Le dataframe contenant les données
+  #' @return Le dataframe avec les lignes contenant des valeurs manquantes dans les colonnes X et Y supprimées
+  #' 
     data <- data[!is.na(data$X) | !is.na(data$Y),]
     return(data)
 }
@@ -96,16 +101,10 @@ data <- remove_X_Y(data)
 cat("Nombre ligne après suppression X et Y : ", nrow(data)," \n\n")
 
 complete_created_date <- function(data) {
-  #* Fonction pour compléter les dates de création manquantes dans les données
-  # 
-  #  Cette fonction parcourt les lignes du dataframe 'data' et remplace les valeurs manquantes
-  #  dans la colonne 'created_date' par la valeur de la ligne précédente.
-  # 
-  #  Args:
-  #   data: Le dataframe contenant les données à traiter
-  # 
-  #  Returns:
-  #   Le dataframe 'data' avec les dates de création complétées
+  #' Complète les valeurs manquantes dans la colonne 'created_date' en utilisant la valeur de la ligne précédente
+  #' @param data Le dataframe contenant les données
+  #' @return Le dataframe avec les valeurs manquantes dans la colonne 'created_date' complétées
+  #' 
     for (i in 1:nrow(data)) {
         if (is.na(data[i, "created_date"])) {
             data[i, "created_date"] <- data[i-1, "created_date"]
@@ -116,13 +115,10 @@ complete_created_date <- function(data) {
 data <- complete_created_date(data)
 
 remove_NA_lines <- function(data) {
-    #* Supprime les lignes qui ont plus de 13 valeurs manquantes.
-    #* Cette fonction est utilisée pour nettoyer les données en éliminant les lignes avec un grand nombre de valeurs manquantes.
-    #* Les lignes avec moins de 13 valeurs manquantes sont conservées.
-    #* Paramètres:
-    #*   - data: Le jeu de données à nettoyer.
-    #* Retourne:
-    #*   Le jeu de données nettoyé, avec les lignes contenant plus de 13 valeurs manquantes supprimées.
+    #' Supprime les lignes avec plus de 12 valeurs manquantes
+    #' @param data Le dataframe contenant les données
+    #' @return Le dataframe avec les lignes contenant plus de 12 valeurs manquantes supprimées
+    #' 
     data <- data[rowSums(is.na(data)) < 13,]
     return(data)
 }
@@ -147,15 +143,10 @@ data <- replace_missing_src_geo(data)
 cat("Nombre de valeurs manquantes dans la colonne 'src_geo' après imputation : ", sum(is.na(data$src_geo)), "\n\n")
 
 formatage_noms <- function(data) {
-  #* Fonction pour formater les noms
-  #'
-  #' Cette fonction prend en entrée un dataframe et remplace les points dans les colonnes
-  #' created_user, last_edited_user, Creator et Editor par des espaces.
-  #' Les noms doivent déjà être en minuscules.
-  #'
-  #' @param data Le dataframe contenant les données à formater
-  #' @return Le dataframe avec les noms formatés
-  #'
+  #' Remplace les points par des espaces dans les noms des colonnes
+  #' @param data Le dataframe contenant les données
+  #' @return Le dataframe avec les noms des colonnes formatés
+  #' 
     data$created_user <- gsub("\\.", " ", data$created_user)
     data$last_edited_user <- gsub("\\.", " ", data$last_edited_user)
     data$Creator <- gsub("\\.", " ", data$Creator)
@@ -236,15 +227,17 @@ data <- remplacer_valeurs_manquantes_tronc_diam(data)
 cat("Nombre de valeurs manquantes dans la colonne 'tronc_diam' après imputation : ", sum(is.na(data$tronc_diam)), "\n\n")
 
 remplacer_valeurs_manquantes <- function(data) {
-  # Fonction pour remplacer les valeurs manquantes dans les colonnes 'fk_nomtech', 'nomfrancais' et 'nomlatin'
-  # avec la valeur "ras" et supprimer les lignes avec les valeurs "ras" ou "indéterminé" dans la colonne 'nomfrancais'
+  #' Remplace les valeurs manquantes dans les colonnes 'fk_nomtech', 'nomfrancais', 'nomlatin' et 'commentaire_environnement' par "ras"
+  #' @param data Le jeu de données contenant les colonnes avec des valeurs manquantes
+  #' @return Le jeu de données modifié avec les valeurs manquantes imputées
+  #' 
   data$fk_nomtech[is.na(data$fk_nomtech)] <- "ras"
   data$nomfrancais[is.na(data$nomfrancais)] <- "ras"
   data$nomlatin[is.na(data$nomlatin)] <- "ras"
   data$commentaire_environnement[is.na(data$commentaire_environnement)] <- "ras"
   data <- data[data$nomfrancais != "ras" & data$nomfrancais != "indéterminé",]
   data$clc_nbr_diag[is.na(data$clc_nbr_diag)] <- 0
-  data <- data[, !(names(data) %in% c("created_date", "dte_abattage", "dte_plantation", "last_edited_date", "CreationDate", "EditDate"))]
+  data <- data[, !(names(data) %in% c("created_date", "dte_abattage", "dte_plantation", "last_edited_date", "EditDate"))]
 
 
   return(data)
@@ -253,14 +246,10 @@ data <- remplacer_valeurs_manquantes(data)
 
 
 impute_remarquable <- function(data) {
-  #' @param data Le jeu de données contenant la colonne 'remarquable' avec des valeurs manquantes
+  #' Remplace les valeurs manquantes de la variable 'remarquable' en utilisant la régression logistique
+  #' @param data Le jeu de données contenant la variable 'remarquable' avec des valeurs manquantes
   #' @return Le jeu de données modifié avec les valeurs manquantes imputées
-  #' @details Cette fonction utilise la régression logistique pour imputer les valeurs manquantes dans la colonne 'remarquable' 
-  #' du jeu de données. Elle calcule d'abord le nombre de valeurs manquantes dans la colonne, puis effectue une régression logistique en utilisant les variables 
-  #' 'nomfrancais', 'haut_tot', 'tronc_diam', 'haut_tronc' et 'fk_stadedev' comme prédicteurs. Ensuite, elle itère sur chaque ligne du jeu de
-  #'  données et impute les valeurs manquantes en utilisant les prédictions de la régression logistique. Les valeurs prédites sont ensuite converties en TRUE ou FALSE en 
-  #' fonction d'un seuil de 0,5. Enfin, le jeu de données modifié est renvoyé.
-  # Print the number of missing values in the 'remarquable' column
+  #' 
   
   logistic_regression <- glm(remarquable ~ nomfrancais + haut_tot + tronc_diam + haut_tronc + as.factor(fk_stadedev), data = data, family = binomial)
   
@@ -318,8 +307,7 @@ cat("Nombre de valeurs manquantes dans la colonne 'age_estim' après imputation 
 
 
 impute_feuillage_simple <- function(data) {
-  #' Remplace les valeurs manquantes de la variable 'feuillage' en utilisant
-  #' les valeurs non manquantes de la même espèce
+  #' Remplace les valeurs manquantes de la variable 'feuillage' en utilisant les valeurs non manquantes de la même espèce
   #' @param data Le jeu de données contenant la variable 'feuillage
   #' @return Le jeu de données modifié avec les valeurs manquantes imputées
   #' 
