@@ -9,6 +9,7 @@ data <- data.frame(data)
 data[data == ""] <- NA
 data[data == " "] <- NA
 
+#affiche moi le nombre de valeurs manquantes en pourcentage dans tout le dataframe
 
 # pour chaque colonne modifier l'encodage  passe les en UTF8 car il ne le sont pas de base
 for (i in 1:ncol(data)) {
@@ -115,7 +116,7 @@ complete_created_date <- function(data) {
 
 data <- complete_created_date(data)
 
-remobe_NA_lines <- function(data) {
+remove_NA_lines <- function(data) {
     #* Supprime les lignes qui ont plus de 13 valeurs manquantes.
     #* Cette fonction est utilisée pour nettoyer les données en éliminant les lignes avec un grand nombre de valeurs manquantes.
     #* Les lignes avec moins de 13 valeurs manquantes sont conservées.
@@ -127,7 +128,7 @@ remobe_NA_lines <- function(data) {
     return(data)
 }
 
-data <- remobe_NA_lines(data)
+data <- remove_NA_lines(data)
 
 data$src_geo[is.na(data$src_geo)] <- "orthophoto"
 
@@ -187,29 +188,29 @@ replace_missing_quartier <- function(data) {
 data <- replace_missing_quartier(data)
 
 
-#* les valeurs manquante de tronc_diam sont remplacé par la moyenne des tronc_diam de la meme espece et au même stade de développement
-#* Si on ne connait pas l'espèce on se base sur le diamètre des troncs qui ont ont le même age et feuillage (comprenant que les non NA et >0)
-#? OK!
-for (i in seq_len(nrow(data))) {
-  if (is.na(data[i, "tronc_diam"])) {
-    espece <- data[i, "nomfrancais"]
-    fk_stadedev <- data[i, "fk_stadedev"]
+# #* les valeurs manquante de tronc_diam sont remplacé par la moyenne des tronc_diam de la meme espece et au même stade de développement
+# #* Si on ne connait pas l'espèce on se base sur le diamètre des troncs qui ont ont le même age et feuillage (comprenant que les non NA et >0)
+# #? OK!
+# for (i in seq_len(nrow(data))) {
+#   if (is.na(data[i, "tronc_diam"])) {
+#     espece <- data[i, "nomfrancais"]
+#     fk_stadedev <- data[i, "fk_stadedev"]
     
-    tronc_diam <- data$tronc_diam[data$nomfrancais == espece & data$fk_stadedev == fk_stadedev  & data$tronc_diam > 0]
-    if (!all(is.na(tronc_diam))) {
-      data[i, "tronc_diam"] <- round(mean(tronc_diam, na.rm = TRUE))
-    } else {
+#     tronc_diam <- data$tronc_diam[data$nomfrancais == espece & data$fk_stadedev == fk_stadedev  & data$tronc_diam > 0]
+#     if (!all(is.na(tronc_diam))) {
+#       data[i, "tronc_diam"] <- round(mean(tronc_diam, na.rm = TRUE))
+#     } else {
       
-      age_estim <- data[i, "age_estim"]
-      feuillage <- data[i, "feuillage"]
+#       age_estim <- data[i, "age_estim"]
+#       feuillage <- data[i, "feuillage"]
       
-      tronc_diam <- data$tronc_diam[data$age_estim == age_estim & data$feuillage== feuillage & data$tronc_diam > 0]
-      if (!all(is.na(tronc_diam))) {
-        data[i, "tronc_diam"] <- round(mean(tronc_diam, na.rm = TRUE))
-      }
-    }
-  }
-}
+#       tronc_diam <- data$tronc_diam[data$age_estim == age_estim & data$feuillage== feuillage & data$tronc_diam > 0]
+#       if (!all(is.na(tronc_diam))) {
+#         data[i, "tronc_diam"] <- round(mean(tronc_diam, na.rm = TRUE))
+#       }
+#     }
+#   }
+# }
 
 data$fk_nomtech[is.na(data$fk_nomtech)] <- "ras"
 data$nomfrancais[is.na(data$nomfrancais)] <- "ras"
@@ -237,25 +238,47 @@ sum(is.na(data$remarquable))
 
 
 
+library(randomForest)
 
 
-#* Les valeurs manquantes de fk_stadedev sont remplaces par le  fk_stadedev le plus frequent des arbres de la meme espece et du meme age_estim (comprenant que les non NA et >0)
-#* mettre fk_stadedev a "mort" si fk_arb_etat est differente de "en place" ou "non éssouché" ou "remplacé"
+#* Les valeurs manquantes de fk_stadedev sont remplacées par le fk_stadedev le plus fréquent des arbres de la même espèce et du même age_estim (comprenant seulement les non NA et >0)
+#* mettre fk_stadedev à "mort" si fk_arb_etat est différent de "en place" ou "non éssouché" ou "remplacé"
 #? OK!
-#TODO A REVOIR 
-for (i in seq_len(nrow(data))) {
-  if (is.na(data[i, "fk_stadedev"])) {
-    espece <- data[i, "nomfrancais"]
-    fk_arb_etat <- data[i, "fk_arb_etat"]
+impute_fk_stadedev_rf <- function(data) {
+    # S'assurer que fk_stadedev est un facteur
+    data$fk_stadedev <- as.factor(data$fk_stadedev)
     
-    fk_stadedev <- data$fk_stadedev[data$nomfrancais == espece & data$fk_arb_etat == fk_arb_etat]
-    if (!all(is.na(fk_stadedev))) {
-      data[i, "fk_stadedev"] <- names(sort(table(fk_stadedev), decreasing = TRUE))[1]
-    } else {
-      data[i, "fk_stadedev"] <- "mort"
+    # Variables nécessaires pour l'entraînement
+    predictors <- c("nomfrancais", "age_estim", "tronc_diam", "haut_tot", "haut_tronc", "feuillage", "fk_arb_etat")
+    
+    # Filtrer les données complètes pour ces variables
+    data_complete <- data[complete.cases(data[, predictors]), ]
+    
+    # Vérifier s'il y a suffisamment de données complètes pour entraîner le modèle
+    if (nrow(data_complete) > 0) {
+        # Entraîner un modèle de forêt aléatoire sur les données complètes
+        rf_model <- randomForest(
+            as.factor(fk_stadedev) ~ nomfrancais + age_estim + tronc_diam + haut_tot + haut_tronc + feuillage + fk_arb_etat,
+            data = data_complete,
+            na.action = na.omit
+        )
+        
+        # Prédire les valeurs manquantes
+        data_missing <- data[is.na(data$fk_stadedev), ]
+        if (nrow(data_missing) > 0) {
+            predictions <- predict(rf_model, newdata = data_missing)
+            data_missing$fk_stadedev <- predictions
+        }
+        
+        # Combiner les données
+        data <- rbind(data_complete, data_missing)
     }
-  }
+    return(data)
 }
+
+data <- impute_fk_stadedev_rf(data)
+
+
 
 
 #* remplace les NA de commentaire_environnement par "RAS"
@@ -350,7 +373,36 @@ rm(list=setdiff(ls(), "data"))
 # Quels sont les liens entre les variables ?
 # Exemple : si on veut estimer la variable âge de l’arbre, quelles sont les variables importantes dans son estimation?
 # • Conduire des analyses bivariées
-# • Etude des relaƟons entre variables qualitaƟves
-# Faire des tableaux croisés et des tests d’indépendance du chi2 sur les
+# • Etude des relations entre variables qualitatives
+# Faire des tableaux croisés et des tests d'indépendance du chi2 sur les
 # tableaux entre les différentes variables
 # Représenter graphiquement ces tableaux (mosaicplot) et les analyser
+
+# Conduire des analyses bivariées
+# Exemple : Analyse de la relation entre les variables "remarquable" et "feuillage"
+table_remarquable_feuillage <- table(data$remarquable, data$feuillage)
+print(table_remarquable_feuillage)
+
+# Test d'indépendance du chi2 entre les variables "remarquable" et "feuillage"
+chi2_test <- chisq.test(data$remarquable, data$feuillage)
+print(chi2_test)
+
+# Etude des relations entre variables qualitatives
+# Exemple : Analyse de la relation entre les variables "nomfrancais" et "feuillage"
+table_remarquable_fk_stadedev <- table(data$remarquable, data$fk_situation)
+print(table_remarquable_fk_stadedev)
+
+# Test d'indépendance du chi2 entre les variables "nomfrancais" et "feuillage"
+chi2_test <- chisq.test(data$nomfrancais, data$feuillage)
+print(chi2_test)
+
+# Représenter graphiquement les tableaux croisés
+# Exemple : Mosaic plot de la relation entre les variables "remarquable" et "feuillage"
+#mosaicplot(table_remarquable_feuillage, main = "Relation entre remarquable et feuillage", cex.axis = 1.2, cex.lab = 1.2)
+
+# Exemple : Mosaic plot de la relation entre les variables "nomfrancais" et "feuillage"
+#mosaicplot(table_remarquable_fk_stadedev, main = "Relation entre remaquable et  stadedev")
+
+
+#supprime la colone created_date dte_abattage dte_plantation last_edited_date CreationDate EditDate
+data <- data[, !(names(data) %in% c("created_date", "dte_abattage", "dte_plantation", "last_edited_date", "CreationDate", "EditDate"))]
