@@ -3,21 +3,21 @@ if (!exists("data", inherits = FALSE)){
 }
 
 
-plot_tree_distribution <- function(data) {
+plot_tree_distribution <- function() {
   #' Fonction qui permet de visualiser la répartition des arbres par quartier
   #' @param data le jeu de données
   #' @return un graphique de répartition des arbres par quartier
   #' 
-  barplot(table(data$fk_stadedev), main = "Répartition des arbres suivant leur stade de développement", xlab = "Stade de développement", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
+  barplot(table(data$fk_stadedev), main = "Repartition des arbres suivant leur stade de developpement", xlab = "Stade de developpement", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
 }
 
 
-plot_types_feuillage <- function(data) {
+plot_types_feuillage <- function() {
   #' Fonction qui permet de visualiser la répartition des types de feuillage des arbres
   #' @param data le jeu de données
   #' @return un graphique de répartition des types de feuillage des arbres
   #' 
-  barplot(table(data$feuillage), main = "Répartition des types de feuillage", xlab = "Type de feuillage", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
+  barplot(table(data$feuillage), main = "Repartition des types de feuillage", xlab = "Type de feuillage", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
 }
 
 #Create a color dictionary for each quartier
@@ -29,15 +29,15 @@ for (quartier in unique_quartiers) {
 }
 
 
-plot_boxplot_tronc_diam <- function(data) {
+plot_boxplot_tronc_diam <- function() {
   #' Fonction qui permet de visualiser le boxplot du diamètre du tronc des arbres
   #' @param data le jeu de données
   #' @return un graphique boxplot du diamètre du tronc des arbres
   #' 
-  boxplot(data$tronc_diam, main = "Boxplot du diamètre du tronc", xlab = "Diamètre du tronc", col = "lightblue", border = "black")
+  boxplot(data$tronc_diam, main = "Boxplot du diametre du tronc", xlab = "Diametre du tronc", col = "lightblue", border = "black")
 }
 
-plot_boxplot_hauteur_quartier <- function(data) {
+plot_boxplot_hauteur_quartier <- function() {
   #' Fonction qui permet de visualiser le boxplot de la hauteur totale des arbres par quartier
   #' @param data le jeu de données
   #' @return un graphique boxplot de la hauteur totale des arbres par quartier
@@ -56,16 +56,16 @@ plot_boxplot_hauteur_quartier <- function(data) {
 
 
 # # Créer des histogrammes
-create_histogram <- function(data, quartier) {
+create_histogram <- function(quartier) {
   #' Fonction qui crée un histogramme de la quantité d'arbres en fonction du quartier
   #' @param data le jeu de données
   #' @param quartier le quartier spécifié
   #' @return un graphique d'histogramme de la quantité d'arbres pour le quartier spécifié
   #' 
-  hist(data$haut_tot[data$clc_quartier == quartier], main = "Quantité d'arbres en fonction du quartier", xlab = "Hauteur totale", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
+  hist(data$haut_tot[data$clc_quartier == quartier], main = "Quantite d'arbres en fonction du quartier", xlab = "Hauteur totale", ylab = "Nombre d'arbres", col = "lightblue", border = "black")
 }
 
-plot_histogram_hauteur_totale <- function(data) {
+plot_histogram_hauteur_totale <- function() {
   #' Fonction qui permet de visualiser l'histogramme de la hauteur totale des arbres
   #' @param data le jeu de données
   #' @return un graphique d'histogramme de la hauteur totale des arbres
@@ -75,7 +75,7 @@ plot_histogram_hauteur_totale <- function(data) {
 
 
 
-plot_arbre_quartier <- function(data, unique_quartiers){
+plot_arbre_quartier <- function(){
   #' Fonction qui permet de visualiser la répartition des arbres par quartier
   #' @param data le jeu de données
   #' @param unique_quartiers les quartiers uniques
@@ -98,16 +98,8 @@ plot_arbre_quartier <- function(data, unique_quartiers){
 
   barplot(sorted_Y, 
       names.arg = sorted_quartiers, 
-      main = "Quantité d'arbres pour chaque quartier", 
+      main = "Quantite d'arbres pour chaque quartier",
       xlab = "Nombre d'arbres", 
       col = sorted_colors, 
       border = "black", las = 1, horiz = TRUE, cex.names = 1.8)
 }
-
-
-plot_tree_distribution(data)
-plot_types_feuillage(data)
-plot_boxplot_tronc_diam(data)
-plot_boxplot_hauteur_quartier(data)
-plot_histogram_hauteur_totale(data)
-plot_arbre_quartier(data, unique_quartiers)

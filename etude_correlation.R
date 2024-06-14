@@ -90,7 +90,7 @@ find_trees_to_cut <- function (){
     print("OBJECTID des arbres a abattre")
     print(a_abbattre)   # 1480 1481 1483 6291 6963 6971 7263 7312
 }
-perform_chi2_tests <- function(data) {
+perform_chi2_tests <- function() {
     #' Fonction qui permet de réaliser des tests du chi2 et d'afficher les résultats sous forme de tableau
     #' @param data le jeu de données
     #' @return les résultats des tests
@@ -116,5 +116,3 @@ perform_chi2_tests <- function(data) {
     
     mosaicplot(table_remarquable_fk_situation, main = "Relation entre remaquable et fk_situation", cex.axis = 1.2)
 }
-
-perform_chi2_tests(data)

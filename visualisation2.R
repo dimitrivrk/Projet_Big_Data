@@ -78,7 +78,8 @@ plot_quartiers <- function(){
       title = "nombre d'arbres par quartiers",
       cex = 0.8
     )
-    par(mfrow=c(1,1), mar = c(5, 5, 5, 5))
+    layout(matrix(c(1), nrow = 1), widths = c(1))
+    plot.new()
 }
 
 # plot_carte()
