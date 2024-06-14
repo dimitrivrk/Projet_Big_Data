@@ -1,4 +1,6 @@
-source("main.R")
+if (!exists("data", inherits = FALSE)){
+    source("main.R")
+}
 library(leaflet)
 library(sf)
 
@@ -15,7 +17,6 @@ transform_coord <- function(){
     return(sf_data_4326)
 }
 
-row_to_html_popup <- function (row){}
 
 data_ <- transform_coord()
 
@@ -46,5 +47,3 @@ map <- leaflet(data_) %>%
                        ifelse(data_$fk_arb_etat == "en place", "", data_$fk_arb_etat))
     ) %>%
     addScaleBar("bottomleft")
-
-map

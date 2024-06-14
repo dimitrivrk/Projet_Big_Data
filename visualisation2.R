@@ -1,4 +1,7 @@
-source("main.R")
+if (!exists("data", inherits = FALSE)){
+    source("main.R")
+}
+
 
 plot_carte <- function(){
     #' Fonction qui permet de visualiser la carte des arbres
@@ -19,6 +22,7 @@ plot_carte <- function(){
     # remarquable trees are twice bigger
     point_sizes <- ifelse(data$remarquable, 1, 0.5)
 
+    par(mar = c(5, 3, 5, 3))
     plot(
         data$X, data$Y,
         col = point_colors, pch = etat_symbols, cex = point_sizes,
@@ -65,6 +69,7 @@ plot_quartiers <- function(){
     )
 
     plot.new()
+    par(mar = c(5, 0, 5, 0))
     legend(
       "center",
       legend = paste(unique_quartiers, " : ", as.character(table(data$clc_quartier))),
@@ -73,7 +78,8 @@ plot_quartiers <- function(){
       title = "nombre d'arbres par quartiers",
       cex = 0.8
     )
+    par(mfrow=c(1,1), mar = c(5, 5, 5, 5))
 }
 
 # plot_carte()
-plot_quartiers()
+# plot_quartiers()

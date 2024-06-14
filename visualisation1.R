@@ -1,4 +1,6 @@
-source("main.R")
+if (!exists("data", inherits = FALSE)){
+    source("main.R")
+}
 
 
 plot_tree_distribution <- function(data) {
